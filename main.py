@@ -1,295 +1,254 @@
 """
-Classroom Web API Assignment
-All routes from the whiteboard implementation using FastAPI.
+Classroom Web API - Week 03 Implementation
+Full RESTful CRUD API with in-memory storage, health check, and Swagger UI at /api/swagger.
 """
 
 from typing import List, Optional
-from fastapi import FastAPI, status
-from fastapi.responses import HTMLResponse, PlainTextResponse
-from pydantic import BaseModel
+from fastapi import FastAPI, HTTPException, status
+from fastapi.responses import HTMLResponse, PlainTextResponse, RedirectResponse
+from pydantic import BaseModel, EmailStr
 
-# Initialize the FastAPI application
+# Initialize FastAPI with custom Swagger UI endpoint (/api/swagger as requested on whiteboard item 7)
 app = FastAPI(
-    title="Classroom Routes Demo",
-    description="Implementation of the routes from the classroom whiteboard in FastAPI.",
-    version="1.0.0"
+    title="Classroom REST API - Week 03",
+    description="RESTful CRUD API for Users with Health Check and Swagger UI.",
+    version="2.0.0",
+    docs_url="/api/swagger",      # Whiteboard item 7: GET /api/swagger
+    redoc_url="/api/redoc",
+    openapi_url="/api/openapi.json"
 )
 
+# Also redirect standard /docs to /api/swagger for convenience
+@app.get("/docs", include_in_schema=False)
+async def redirect_to_swagger():
+    return RedirectResponse(url="/api/swagger")
+
+
 # ---------------------------------------------------------
-# Pydantic Models (Schemas for POST requests)
+# Pydantic Schemas for Users
 # ---------------------------------------------------------
-class Alumni(BaseModel):
-    id: Optional[int] = None
-    full_name: str
-    department: str
-    graduation_year: int
+class UserBase(BaseModel):
+    name: str
+    age: Optional[int] = None
     email: Optional[str] = None
 
 
-class Auto(BaseModel):
-    id: Optional[int] = None
-    brand: str
-    model: str
-    year: int
-    color: Optional[str] = None
+class UserCreate(UserBase):
+    """Schema for creating a new user (POST /api/users)"""
+    pass
 
 
-# In-memory mock databases
-alumni_db: List[Alumni] = [
-    Alumni(id=1, full_name="Emre Yilmaz", department="Computer Engineering", graduation_year=2023, email="emre@example.com"),
-    Alumni(id=2, full_name="Sude Dogan", department="Software Engineering", graduation_year=2024, email="sude@example.com"),
-]
+class UserUpdate(UserBase):
+    """Schema for fully updating a user (PUT /api/users/{id})"""
+    pass
 
-auto_db: List[Auto] = [
-    Auto(id=1, brand="Toyota", model="Corolla", year=2021, color="White"),
-    Auto(id=2, brand="Tesla", model="Model 3", year=2023, color="Red"),
-]
+
+class UserPatch(BaseModel):
+    """Schema for partially updating a user (PATCH /api/users/{id})"""
+    name: Optional[str] = None
+    age: Optional[int] = None
+    email: Optional[str] = None
+
+
+class User(UserBase):
+    """User response model containing assigned ID"""
+    id: int
 
 
 # ---------------------------------------------------------
-# Whiteboard Routes 1 to 5
+# In-Memory Database (Whiteboard item 3: "don't use any database yet")
 # ---------------------------------------------------------
+users_db: List[User] = [
+    User(id=1, name="Emre Yilmaz", age=24, email="emre@example.com"),
+    User(id=2, name="Sude Dogan", age=22, email="sude@example.com"),
+]
+next_user_id: int = 3
 
-# 1. GET / -> "ok"
+
+# ---------------------------------------------------------
+# 1. GET /api/health -> JSON
+# ---------------------------------------------------------
 @app.get(
-    "/",
-    response_class=PlainTextResponse,
-    summary="Route 1: Status check",
-    tags=["Classroom Exercises"]
+    "/api/health",
+    summary="1. Health Check",
+    tags=["System"]
 )
-async def root():
+async def health_check():
     """
-    Route 1:
-    Returns simple text "ok"
+    Whiteboard item 1:
+    GET /api/health -> returns JSON indicating API health status.
     """
-    return "ok"
-
-
-# 2. GET /hello -> "Hello, World!"
-@app.get(
-    "/hello",
-    response_class=PlainTextResponse,
-    summary="Route 2: Basic greeting",
-    tags=["Classroom Exercises"]
-)
-async def say_hello():
-    """
-    Route 2:
-    Returns the standard greeting "Hello, World!"
-    """
-    return "Hello, World!"
-
-
-# 3. GET /hello/{name} -> "Hello, Emre!" (e.g. /hello/emre)
-@app.get(
-    "/hello/{name}",
-    response_class=PlainTextResponse,
-    summary="Route 3: Personalized greeting",
-    tags=["Classroom Exercises"]
-)
-async def say_hello_name(name: str):
-    """
-    Route 3:
-    Takes a path parameter `name` and returns "Hello, {name}!"
-    Capitalizes the name properly (e.g., 'emre' -> 'Hello, Emre!').
-    """
-    formatted_name = name.strip().capitalize()
-    return f"Hello, {formatted_name}!"
-
-
-# 4. GET /sum/{number1}/{number2} -> sum of numbers
-@app.get(
-    "/sum/{number1}/{number2}",
-    summary="Route 4: Calculate sum of two numbers",
-    tags=["Classroom Exercises"]
-)
-async def calculate_sum(number1: int, number2: int):
-    """
-    Route 4:
-    Takes two integer path parameters and computes their sum.
-    Returns both the numeric result and a formatted message.
-    """
-    total = number1 + number2
     return {
-        "number1": number1,
-        "number2": number2,
-        "sum": total,
-        "message": f"The sum of {number1} and {number2} is {total}"
+        "status": "UP",
+        "message": "API is running healthy",
+        "version": "2.0.0"
     }
 
 
-# 5. GET /main (or /page) -> "temporary one main page"
-@app.get(
-    "/main",
-    response_class=HTMLResponse,
-    summary="Route 5: Temporary main page",
-    tags=["Classroom Exercises"]
-)
-async def temporary_main_page():
-    """
-    Route 5:
-    Returns a temporary HTML main page.
-    """
-    html_content = """
-    <!DOCTYPE html>
-    <html lang="en">
-    <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Temporary Main Page</title>
-        <style>
-            body {
-                font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-                background-color: #f8fafc;
-                color: #1e293b;
-                display: flex;
-                justify-content: center;
-                align-items: center;
-                min-height: 100vh;
-                margin: 0;
-            }
-            .card {
-                background: white;
-                padding: 2.5rem;
-                border-radius: 12px;
-                box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
-                max-width: 520px;
-                width: 90%;
-            }
-            h1 {
-                font-size: 1.75rem;
-                color: #0f172a;
-                margin-top: 0;
-            }
-            p {
-                color: #64748b;
-                line-height: 1.6;
-            }
-            ul {
-                list-style: none;
-                padding: 0;
-            }
-            li {
-                margin: 10px 0;
-            }
-            a {
-                display: inline-block;
-                color: #2563eb;
-                text-decoration: none;
-                font-weight: 500;
-                padding: 6px 12px;
-                background: #eff6ff;
-                border-radius: 6px;
-                transition: background 0.2s;
-            }
-            a:hover {
-                background: #dbeafe;
-            }
-            .badge {
-                font-size: 0.75rem;
-                background: #e2e8f0;
-                color: #475569;
-                padding: 2px 6px;
-                border-radius: 4px;
-                margin-left: 6px;
-            }
-        </style>
-    </head>
-    <body>
-        <div class="card">
-            <h1>🚀 Temporary Main Page</h1>
-            <p>Welcome! This is the temporary main landing page served by the API.</p>
-            <h3>Available Endpoints:</h3>
-            <ul>
-                <li><a href="/">GET /</a> <span class="badge">returns "ok"</span></li>
-                <li><a href="/hello">GET /hello</a> <span class="badge">"Hello, World!"</span></li>
-                <li><a href="/hello/emre">GET /hello/emre</a> <span class="badge">"Hello, Emre!"</span></li>
-                <li><a href="/sum/15/25">GET /sum/15/25</a> <span class="badge">Sum: 40</span></li>
-                <li><a href="/alumni">GET /alumni</a> <span class="badge">Alumni list</span></li>
-                <li><a href="/auto">GET /auto</a> <span class="badge">Auto list</span></li>
-                <li><a href="/docs" target="_blank">GET /docs</a> <span class="badge">Swagger UI Docs</span></li>
-            </ul>
-        </div>
-    </body>
-    </html>
-    """
-    return HTMLResponse(content=html_content)
-
-
 # ---------------------------------------------------------
-# Top Section of Whiteboard: Alumni & Auto (GET & POST)
+# 3. POST /api/users (don't use any database yet)
 # ---------------------------------------------------------
-
-# Alumni Endpoints
-@app.get(
-    "/alumni",
-    response_model=List[Alumni],
-    summary="Get all alumni members",
-    tags=["Alumni"]
-)
-async def get_alumni():
-    """
-    (GET) http://localhost:8000/alumni
-    Retrieves the list of all alumni.
-    """
-    return alumni_db
-
-
 @app.post(
-    "/alumni",
-    response_model=Alumni,
+    "/api/users",
+    response_model=User,
     status_code=status.HTTP_201_CREATED,
-    summary="Create a new alumni member",
-    tags=["Alumni"]
+    summary="3. Create User",
+    tags=["Users"]
 )
-async def create_alumni(alumni: Alumni):
+async def create_user(user_in: UserCreate):
     """
-    (POST) http://localhost:8000/alumni
-    Adds a new alumni member to the database.
+    Whiteboard item 3:
+    POST /api/users (in-memory, no database yet).
+    Returns the newly created user object with its assigned ID ("what you sent comes back").
     """
-    new_id = len(alumni_db) + 1
-    alumni.id = new_id
-    alumni_db.append(alumni)
-    return alumni
-
-
-# Auto Endpoints
-@app.get(
-    "/auto",
-    response_model=List[Auto],
-    summary="Get all vehicles",
-    tags=["Auto"]
-)
-async def get_autos():
-    """
-    (GET) http://localhost:8000/auto
-    Retrieves the list of all vehicles.
-    """
-    return auto_db
-
-
-@app.post(
-    "/auto",
-    response_model=Auto,
-    status_code=status.HTTP_201_CREATED,
-    summary="Add a new vehicle",
-    tags=["Auto"]
-)
-async def create_auto(auto: Auto):
-    """
-    (POST) http://localhost:8000/auto
-    Adds a new vehicle to the database.
-    """
-    new_id = len(auto_db) + 1
-    auto.id = new_id
-    auto_db.append(auto)
-    return auto
+    global next_user_id
+    new_user = User(id=next_user_id, **user_in.model_dump())
+    next_user_id += 1
+    users_db.append(new_user)
+    return new_user
 
 
 # ---------------------------------------------------------
-# Application Entry Point
+# 4. GET /api/users -> list all users
+# ---------------------------------------------------------
+@app.get(
+    "/api/users",
+    response_model=List[User],
+    summary="4. List All Users",
+    tags=["Users"]
+)
+async def list_users():
+    """
+    Whiteboard item 4:
+    GET /api/users -> returns a list of all existing users.
+    """
+    return users_db
+
+
+# ---------------------------------------------------------
+# 4b. GET /api/users/{id} -> get user by id
+# ---------------------------------------------------------
+@app.get(
+    "/api/users/{id}",
+    response_model=User,
+    summary="4b. Get User by ID",
+    tags=["Users"]
+)
+async def get_user_by_id(id: int):
+    """
+    Whiteboard item 4b:
+    GET /api/users/{id} -> returns the user matching the given ID.
+    Returns 404 Not Found if user doesn't exist.
+    """
+    for user in users_db:
+        if user.id == id:
+            return user
+    raise HTTPException(
+        status_code=status.HTTP_404_NOT_FOUND,
+        detail=f"User with ID {id} was not found"
+    )
+
+
+# ---------------------------------------------------------
+# 5. PUT /api/users/{id} -> full update
+#    PATCH /api/users/{id} -> partial update
+# ---------------------------------------------------------
+@app.put(
+    "/api/users/{id}",
+    response_model=User,
+    summary="5. Full Update User (PUT)",
+    tags=["Users"]
+)
+async def update_user_put(id: int, user_in: UserUpdate):
+    """
+    Whiteboard item 5:
+    PUT /api/users/{id} -> replaces all fields of the specified user.
+    """
+    for index, user in enumerate(users_db):
+        if user.id == id:
+            updated_user = User(id=id, **user_in.model_dump())
+            users_db[index] = updated_user
+            return updated_user
+    raise HTTPException(
+        status_code=status.HTTP_404_NOT_FOUND,
+        detail=f"User with ID {id} was not found"
+    )
+
+
+@app.patch(
+    "/api/users/{id}",
+    response_model=User,
+    summary="5. Partial Update User (PATCH)",
+    tags=["Users"]
+)
+async def update_user_patch(id: int, user_in: UserPatch):
+    """
+    Whiteboard item 5:
+    PATCH /api/users/{id} -> updates only the provided fields of the user.
+    """
+    for index, user in enumerate(users_db):
+        if user.id == id:
+            stored_data = user.model_dump()
+            update_data = user_in.model_dump(exclude_unset=True)
+            stored_data.update(update_data)
+            updated_user = User(**stored_data)
+            users_db[index] = updated_user
+            return updated_user
+    raise HTTPException(
+        status_code=status.HTTP_404_NOT_FOUND,
+        detail=f"User with ID {id} was not found"
+    )
+
+
+# ---------------------------------------------------------
+# 6. DELETE /api/users/{id}
+# ---------------------------------------------------------
+@app.delete(
+    "/api/users/{id}",
+    summary="6. Delete User",
+    tags=["Users"]
+)
+async def delete_user(id: int):
+    """
+    Whiteboard item 6:
+    DELETE /api/users/{id} -> removes user with matching ID from memory.
+    """
+    for index, user in enumerate(users_db):
+        if user.id == id:
+            removed_user = users_db.pop(index)
+            return {
+                "message": f"User with ID {id} has been successfully deleted",
+                "deleted_user": removed_user
+            }
+    raise HTTPException(
+        status_code=status.HTTP_404_NOT_FOUND,
+        detail=f"User with ID {id} was not found"
+    )
+
+
+# ---------------------------------------------------------
+# Previous Week Routes (Preserved for Reference & Testing)
+# ---------------------------------------------------------
+@app.get("/", response_class=PlainTextResponse, tags=["Week 02 Reference"])
+async def root():
+    return "ok"
+
+@app.get("/hello", response_class=PlainTextResponse, tags=["Week 02 Reference"])
+async def say_hello():
+    return "Hello, World!"
+
+@app.get("/hello/{name}", response_class=PlainTextResponse, tags=["Week 02 Reference"])
+async def say_hello_name(name: str):
+    return f"Hello, {name.strip().capitalize()}!"
+
+@app.get("/sum/{number1}/{number2}", tags=["Week 02 Reference"])
+async def calculate_sum(number1: int, number2: int):
+    return {"number1": number1, "number2": number2, "sum": number1 + number2}
+
+
+# ---------------------------------------------------------
+# Server Launch
 # ---------------------------------------------------------
 if __name__ == "__main__":
     import uvicorn
-    # Run server locally on port 8000
     uvicorn.run("main:app", host="127.0.0.1", port=8000, reload=True)
