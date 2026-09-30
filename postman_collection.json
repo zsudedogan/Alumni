@@ -1,0 +1,134 @@
+{
+  "info": {
+    "name": "Week 03 - Users CRUD API",
+    "description": "Collection of requests for testing all Week 03 classroom whiteboard endpoints.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "1. GET Health Check",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "http://127.0.0.1:8000/api/health",
+          "protocol": "http",
+          "host": ["127", "0", "0", "1"],
+          "port": "8000",
+          "path": ["api", "health"]
+        }
+      }
+    },
+    {
+      "name": "3. POST Create User",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"name\": \"Ali Kaya\",\n  \"age\": 24,\n  \"email\": \"ali.kaya@example.com\"\n}"
+        },
+        "url": {
+          "raw": "http://127.0.0.1:8000/api/users",
+          "protocol": "http",
+          "host": ["127", "0", "0", "1"],
+          "port": "8000",
+          "path": ["api", "users"]
+        }
+      }
+    },
+    {
+      "name": "4. GET List All Users",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "http://127.0.0.1:8000/api/users",
+          "protocol": "http",
+          "host": ["127", "0", "0", "1"],
+          "port": "8000",
+          "path": ["api", "users"]
+        }
+      }
+    },
+    {
+      "name": "4b. GET User By ID",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "http://127.0.0.1:8000/api/users/1",
+          "protocol": "http",
+          "host": ["127", "0", "0", "1"],
+          "port": "8000",
+          "path": ["api", "users", "1"]
+        }
+      }
+    },
+    {
+      "name": "5. PUT Update User (Full)",
+      "request": {
+        "method": "PUT",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"name\": \"Emre Yilmaz Updated\",\n  \"age\": 25,\n  \"email\": \"emre.updated@example.com\"\n}"
+        },
+        "url": {
+          "raw": "http://127.0.0.1:8000/api/users/1",
+          "protocol": "http",
+          "host": ["127", "0", "0", "1"],
+          "port": "8000",
+          "path": ["api", "users", "1"]
+        }
+      }
+    },
+    {
+      "name": "5. PATCH Update User (Partial)",
+      "request": {
+        "method": "PATCH",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"age\": 26\n}"
+        },
+        "url": {
+          "raw": "http://127.0.0.1:8000/api/users/1",
+          "protocol": "http",
+          "host": ["127", "0", "0", "1"],
+          "port": "8000",
+          "path": ["api", "users", "1"]
+        }
+      }
+    },
+    {
+      "name": "6. DELETE User",
+      "request": {
+        "method": "DELETE",
+        "header": [],
+        "url": {
+          "raw": "http://127.0.0.1:8000/api/users/1",
+          "protocol": "http",
+          "host": ["127", "0", "0", "1"],
+          "port": "8000",
+          "path": ["api", "users", "1"]
+        }
+      }
+    }
+  ]
+}

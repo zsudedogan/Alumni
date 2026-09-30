@@ -1,146 +1,64 @@
-# Classroom API Assignment: Web Routes Implementation
+# Classroom REST API - Week 03: Full Users CRUD & Swagger
 
-This project implements all the web routes and concepts written on the whiteboard during class.
+This repository implements all the exercises from Week 03 of the classroom whiteboard.
 
 ---
 
-## 📋 Whiteboard Route Mapping
+## 📋 Week 03 Whiteboard Items & Endpoints
 
-| # | HTTP Method | Endpoint | Expected Output / Behavior | Example |
+| # | HTTP Method | Endpoint | Request Body | Description |
 |---|---|---|---|---|
-| **1** | `GET` | `/` | `"ok"` | `http://localhost:8000/` |
-| **2** | `GET` | `/hello` | `"Hello, World!"` | `http://localhost:8000/hello` |
-| **3** | `GET` | `/hello/{name}` | `"Hello, Emre!"` (personalized greeting) | `http://localhost:8000/hello/emre` |
-| **4** | `GET` | `/sum/{number1}/{number2}` | Returns sum of the two numbers | `http://localhost:8000/sum/15/25` -> `40` |
-| **5** | `GET` | `/main` | Temporary main page (HTML landing page) | `http://localhost:8000/main` |
-| **Top** | `GET` | `/alumni` | List of alumni records | `http://localhost:8000/alumni` |
-| **Top** | `POST` | `/alumni` | Add a new alumni record | POST JSON body to `/alumni` |
-| **Top** | `GET` | `/auto` | List of vehicle records | `http://localhost:8000/auto` |
-| **Top** | `POST` | `/auto` | Add a new vehicle record | POST JSON body to `/auto` |
+| **1** | `GET` | `/api/health` | None | Returns JSON system health status (`{"status": "UP"}`) |
+| **2** | - | *Install Postman* | - | Included `postman_collection.json` ready for 1-click import |
+| **3** | `POST` | `/api/users` | `{"name": "...", "age": 24, "email": "..."}` | Creates new user in-memory ("what you sent comes back") |
+| **4** | `GET` | `/api/users` | None | Lists all users |
+| **4b**| `GET` | `/api/users/{id}` | None | Retrieves single user by ID (or 404 if not found) |
+| **5** | `PUT` | `/api/users/{id}` | Full User object | Completely updates user fields |
+| **5** | `PATCH` | `/api/users/{id}` | Partial fields (e.g. `{"age": 25}`) | Partially updates specified user fields |
+| **6** | `DELETE`| `/api/users/{id}` | None | Removes user from memory (or 404 if not found) |
+| **7** | `GET` | `/api/swagger` | None | Interactive Swagger UI API documentation |
 
 ---
 
-## 🚀 Quick Start Guide (FastAPI - Recommended)
+## 🚀 Running the API
 
-The whiteboard features route parameter syntax `{name}`, `{number1}/{number2}`, and Swagger UI references (`/docs`), which directly correspond to **FastAPI**.
+1. Navigate to the project directory:
+   ```bash
+   cd /Users/zsudedogan/.gemini/antigravity/scratch/fastapi-app
+   ```
 
-### 1. Prerequisites & Setup
+2. Activate virtual environment and install dependencies:
+   ```bash
+   source venv/bin/activate
+   pip install fastapi "uvicorn[standard]"
+   ```
 
-Open your terminal, navigate to the project directory, and create a virtual environment:
+3. Start server:
+   ```bash
+   python3 main.py
+   ```
+   *(or `uvicorn main:app --reload --port 8000`)*
 
-```bash
-cd /Users/zsudedogan/.gemini/antigravity/scratch/fastapi-app
-python3 -m venv venv
-source venv/bin/activate
-pip install -r requirements.txt
-```
-
-### 2. Run the Server
-
-Start the development server using **Uvicorn**:
-
-```bash
-uvicorn main:app --reload --port 8000
-```
-Or simply run:
-```bash
-python3 main.py
-```
-
-The server will be running at: **`http://127.0.0.1:8000`**
+API will be live at: **`http://127.0.0.1:8000`**
 
 ---
 
-## 🔍 How to Test Each Route
+## 📮 Testing with Postman (Item 2)
 
-### Route 1: Health / Status Check
-- **URL**: `http://localhost:8000/`
-- **Method**: `GET`
-- **Response**:
-  ```text
-  ok
-  ```
+A pre-built Postman collection is included in this repository:
+[`postman_collection.json`](./postman_collection.json)
 
-### Route 2: Default Greeting
-- **URL**: `http://localhost:8000/hello`
-- **Method**: `GET`
-- **Response**:
-  ```text
-  Hello, World!
-  ```
-
-### Route 3: Personalized Greeting with Path Parameter
-- **URL**: `http://localhost:8000/hello/emre`
-- **Method**: `GET`
-- **Response**:
-  ```text
-  Hello, Emre!
-  ```
-  *(Note: The code automatically formats and capitalizes the input parameter name)*
-
-### Route 4: Sum of Two Numbers
-- **URL**: `http://localhost:8000/sum/10/25`
-- **Method**: `GET`
-- **Response (JSON)**:
-  ```json
-  {
-    "number1": 10,
-    "number2": 25,
-    "sum": 35,
-    "message": "The sum of 10 and 25 is 35"
-  }
-  ```
-
-### Route 5: Temporary Main Page
-- **URL**: `http://localhost:8000/main`
-- **Method**: `GET`
-- **Response**: An interactive, responsive HTML page listing all endpoints and documentation links.
+1. Open **Postman**.
+2. Click **Import** (top left).
+3. Select `postman_collection.json` from this folder.
+4. You will see all 7 requests ready to test with pre-configured JSON payloads!
 
 ---
 
-## 🎓 Alumni & Auto Endpoints (Top Section)
+## 📖 Swagger UI (Item 7)
 
-### Get All Alumni
-```bash
-curl -X GET http://localhost:8000/alumni
-```
+Open your browser and visit:
+👉 **`http://127.0.0.1:8000/api/swagger`**
+*(Also automatically redirects from `/docs`)*
 
-### Create a New Alumnus
-```bash
-curl -X POST http://localhost:8000/alumni \
-  -H "Content-Type: application/json" \
-  -d '{"full_name": "Ahmet Yildiz", "department": "Computer Science", "graduation_year": 2022}'
-```
-
-### Get All Autos
-```bash
-curl -X GET http://localhost:8000/auto
-```
-
-### Add a New Auto
-```bash
-curl -X POST http://localhost:8000/auto \
-  -H "Content-Type: application/json" \
-  -d '{"brand": "BMW", "model": "320i", "year": 2022, "color": "Blue"}'
-```
-
----
-
-## 📖 Interactive Documentation (Swagger UI)
-
-FastAPI automatically generates interactive API documentation. While your server is running, open:
-- **Swagger UI**: [http://localhost:8000/docs](http://localhost:8000/docs)
-- **ReDoc**: [http://localhost:8000/redoc](http://localhost:8000/redoc)
-
-You can test all endpoints, path parameters, and request bodies directly from this interface!
-
----
-
-## 🐍 Flask Alternative
-
-If your teacher preferred **Flask**, run:
-```bash
-pip install flask
-python3 flask_app.py
-```
-Flask runs by default on: **`http://127.0.0.1:5000`**
+You can execute all GET, POST, PUT, PATCH, and DELETE requests interactively directly in your browser.
