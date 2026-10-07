@@ -1,6 +1,108 @@
-# Classroom REST API - Week 03: Full Users CRUD & Swagger
+# Classroom REST API - Week 03 & 04: Full Users CRUD, Swagger & MVC Architecture
 
-This repository implements all the exercises from Week 03 of the classroom whiteboard.
+This repository implements all the exercises from the classroom whiteboard, featuring a full RESTful CRUD API, Swagger documentation, and an architectural design based on the **MVC (Model-View-Controller)** pattern.
+
+---
+
+## 🏛️ MVC (Model-View-Controller) Architecture Documentation
+
+The **MVC (Model-View-Controller)** pattern is an architectural design pattern that separates an application into three interconnected components. In this REST API application, the responsibilities are decoupled as follows:
+
+```
+  +-------------------------------------------------------------+
+  |                        CLIENT                               |
+  |             (Postman, Web Browser, Swagger UI)              |
+  +-------------------------------------------------------------+
+                               |    ^
+                1. HTTP Request|    | 4. HTTP Response (JSON/HTML)
+                               v    |
+  +-------------------------------------------------------------+
+  |                      CONTROLLER                             |
+  |                (Route Handlers / Endpoints)                 |
+  |   - Parses incoming requests & path parameters              |
+  |   - Validates incoming payload using Schemas                |
+  |   - Coordinates business logic & CRUD operations            |
+  +-------------------------------------------------------------+
+               |                                ^
+  2. Read/Write|                                | 3. Validated Data
+               v                                |
+  +--------------------------+    +-----------------------------+
+  |          MODEL           |    |            VIEW             |
+  | (Data Entities & Store)  |--->|    (Presentation Layer)     |
+  | - Pydantic Data Models   |    | - JSON Response Format      |
+  | - Data validation rules  |    | - HTTP Status Codes (201,   |
+  | - In-memory Database     |    |   404, 200, etc.)           |
+  |   (users_db, next_id)    |    | - Swagger UI Documentation  |
+  +--------------------------+    +-----------------------------+
+```
+
+---
+
+### 📂 Directory & File Structure (Tree View)
+
+```text
+fastapi-app/
+│
+├── main.py                     # Primary Application Entrypoint & MVC Core
+│   ├── [Model Layer]           # Pydantic entity models & in-memory database store
+│   ├── [View Layer]            # Response schemas, status codes & Swagger UI routing
+│   └── [Controller Layer]      # Route endpoints (GET, POST, PUT, PATCH, DELETE)
+│
+├── postman_collection.json     # Postman Test Suite (API Client & Testing View)
+├── requirements.txt            # Python Dependencies & Environment specifications
+├── test_api.py                 # Automated Test Suite (Unit & Integration verification)
+├── README.md                   # System Architecture & API Documentation
+└── flask_app.py                # Alternative Framework Reference Implementation
+```
+
+---
+
+### 🧱 Detailed MVC Component Breakdown
+
+#### 1. 🗄️ Model Layer (M)
+* **Definition:** Responsible for data representation, data structures, state management, and business validation rules.
+* **Location in Code:** Defined within `main.py` under the data schemas section:
+  * `UserBase`: Base entity defining core fields (`name: str`, `age: Optional[int]`, `email: Optional[str]`).
+  * `UserCreate`: Schema for incoming user creation data.
+  * `UserUpdate`: Schema for full updates via `PUT`.
+  * `UserPatch`: Schema for partial updates via `PATCH` (all fields optional).
+  * `User`: Model representing the stored user entity, including the system-assigned `id: int`.
+  * `users_db`: In-memory storage acting as the temporary database repository (`users_db: List[User]`).
+  * `next_user_id`: Auto-incrementing identifier counter.
+
+#### 2. 👁️ View Layer (V)
+* **Definition:** Responsible for how data is presented, formatted, and exposed to the client.
+* **In REST APIs:** The View is not a set of traditional HTML pages; it is the **structured JSON representation**, **HTTP status codes**, and **API documentation interfaces**.
+  * **JSON Responses:** Automatic serialization of `User` models into JSON payloads.
+  * **HTTP Status Codes:** Semantic HTTP response codes:
+    * `200 OK`: Successful retrieval, update, or deletion.
+    * `201 Created`: Successful resource creation on `POST /api/users`.
+    * `404 Not Found`: Meaningful error response when a requested resource does not exist.
+  * **Swagger UI Documentation:** Accessible at `/api/swagger`, providing an interactive visual representation of all API endpoints and schemas.
+  * **HTML View (`/main`):** An aesthetic landing page rendered via `HTMLResponse`.
+
+#### 3. 🎮 Controller Layer (C)
+* **Definition:** Acts as the intermediary between the client, the Model, and the View. It intercepts HTTP requests, extracts parameters, coordinates business operations, and directs the response.
+* **Location in Code:** The endpoint functions decorated with `@app` routes:
+  * `health_check()`: Controller for `GET /api/health`.
+  * `create_user(user_in: UserCreate)`: Controller for `POST /api/users`. Validates input, assigns an incremental ID, inserts the entity into `users_db`, and returns the created resource.
+  * `list_users()`: Controller for `GET /api/users`. Reads all entities from storage.
+  * `get_user_by_id(id: int)`: Controller for `GET /api/users/{id}`. Finds by ID or raises 404.
+  * `update_user_put(id: int, user_in: UserUpdate)`: Controller for `PUT /api/users/{id}`. Overwrites entity fields.
+  * `update_user_patch(id: int, user_in: UserPatch)`: Controller for `PATCH /api/users/{id}`. Partially updates fields.
+  * `delete_user(id: int)`: Controller for `DELETE /api/users/{id}`. Removes entity by ID.
+
+---
+
+### 📊 Summary Table of MVC Architecture Mapping
+
+| Component | Architecture Role | File / Location | Responsibility |
+|---|---|---|---|
+| **Model** | Data & State | `main.py` (`User`, `UserBase`, `users_db`) | Defines data schemas, type constraints, and in-memory persistence. |
+| **View** | Presentation | `main.py` (`response_model`, status codes, `/api/swagger`) | Serializes JSON responses, emits HTTP statuses, generates Swagger docs. |
+| **Controller** | Logic & Routing | `main.py` (Functions decorated with `@app.get/post/put/patch/delete`) | Receives client requests, processes input, interacts with models, returns views. |
+| **Client** | Consumer / Tester | `postman_collection.json`, Swagger UI | Sends HTTP requests and inspects server responses. |
+| **Testing** | Verification | `test_api.py` | Automated tests verifying Controller-Model-View integration. |
 
 ---
 
@@ -49,9 +151,8 @@ A pre-built Postman collection is included in this repository:
 [`postman_collection.json`](./postman_collection.json)
 
 1. Open **Postman**.
-2. Click **Import** (top left).
-3. Select `postman_collection.json` from this folder.
-4. You will see all 7 requests ready to test with pre-configured JSON payloads!
+2. Press **`Cmd + O`** (or drag and drop `postman_collection.json` into Postman).
+3. You will see all 7 requests ready to test with pre-configured JSON payloads!
 
 ---
 
@@ -60,5 +161,3 @@ A pre-built Postman collection is included in this repository:
 Open your browser and visit:
 👉 **`http://127.0.0.1:8000/api/swagger`**
 *(Also automatically redirects from `/docs`)*
-
-You can execute all GET, POST, PUT, PATCH, and DELETE requests interactively directly in your browser.
