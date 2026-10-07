@@ -43,16 +43,22 @@ The **MVC (Model-View-Controller)** pattern is an architectural design pattern t
 ```text
 fastapi-app/
 │
-├── main.py                     # Primary Application Entrypoint & MVC Core
-│   ├── [Model Layer]           # Pydantic entity models & in-memory database store
-│   ├── [View Layer]            # Response schemas, status codes & Swagger UI routing
-│   └── [Controller Layer]      # Route endpoints (GET, POST, PUT, PATCH, DELETE)
+├── main.py                             # Application Entrypoint (Mounts Controllers & Swagger)
 │
-├── postman_collection.json     # Postman Test Suite (API Client & Testing View)
-├── requirements.txt            # Python Dependencies & Environment specifications
-├── test_api.py                 # Automated Test Suite (Unit & Integration verification)
-├── README.md                   # System Architecture & API Documentation
-└── flask_app.py                # Alternative Framework Reference Implementation
+├── models/                             # [M] MODEL LAYER
+│   ├── __init__.py
+│   └── user.py                         # UserModel with In-Memory CRUD functions & Schemas
+│
+├── controllers/                        # [C] CONTROLLER LAYER
+│   ├── __init__.py
+│   ├── user_controller.py              # UserController (CRUD operations for /users)
+│   └── api_user_controller.py          # ApiUserController (CRUD operations for /api/users)
+│
+├── postman_collection.json             # Postman Test Suite (API Client)
+├── requirements.txt                    # Python Dependencies
+├── test_api.py                         # Automated Integration Tests
+├── README.md                           # System Architecture & API Documentation
+└── flask_app.py                        # Alternative Framework Reference
 ```
 
 ---
