@@ -1,38 +1,46 @@
-# Classroom REST API - Week 03 & 04: Full Users CRUD, Swagger & MVC Architecture
+# Classroom REST API - Week 04: Full MVC Architecture & Homework
 
-This repository implements all the exercises from the classroom whiteboard, featuring a full RESTful CRUD API, Swagger documentation, and an architectural design based on the **MVC (Model-View-Controller)** pattern.
+This repository implements all classroom exercises and the complete homework assignment:
+* **Item 5:** `GET .../users` ➔ listing (R), `POST .../users` ➔ creating (C), 2 routes with View Layer.
+* **Item 6:** All CRUD operations on User route and controller with View Layer.
+* **Homework Assignment:**
+  * ✅ Create Announcement model (in-memory without database).
+  * ✅ Create 2 controllers (`AnnouncementController` & `ApiAnnouncementController`).
+  * ✅ Create routes for both controllers (`.../announcements/` and `.../api/announcements/`).
+  * ✅ Create interactive Web Management Interface without database.
+* **Swagger UI:** Categorized interactive API documentation at `/api/swagger`.
 
 ---
 
 ## 🏛️ MVC (Model-View-Controller) Architecture Documentation
 
-The **MVC (Model-View-Controller)** pattern is an architectural design pattern that separates an application into three interconnected components. In this REST API application, the responsibilities are decoupled as follows:
+The application strictly decouples concerns across three distinct layers:
 
 ```
   +-------------------------------------------------------------+
   |                        CLIENT                               |
-  |             (Postman, Web Browser, Swagger UI)              |
+  |             (Web Browser, Postman, Swagger UI)              |
   +-------------------------------------------------------------+
                                |    ^
-                1. HTTP Request|    | 4. HTTP Response (JSON/HTML)
+                1. HTTP Request|    | 4. HTTP Response (HTML/JSON)
                                v    |
   +-------------------------------------------------------------+
   |                      CONTROLLER                             |
-  |                (Route Handlers / Endpoints)                 |
-  |   - Parses incoming requests & path parameters              |
-  |   - Validates incoming payload using Schemas                |
-  |   - Coordinates business logic & CRUD operations            |
+  |   (UserController, AnnouncementController, ApiControllers)  |
+  |   - Intercepts requests & path parameters                   |
+  |   - Validates data via Pydantic schemas                     |
+  |   - Executes business logic & calls Model methods           |
+  |   - Returns HTML from View or JSON for API                  |
   +-------------------------------------------------------------+
                |                                ^
   2. Read/Write|                                | 3. Validated Data
                v                                |
   +--------------------------+    +-----------------------------+
   |          MODEL           |    |            VIEW             |
-  | (Data Entities & Store)  |--->|    (Presentation Layer)     |
-  | - Pydantic Data Models   |    | - JSON Response Format      |
-  | - Data validation rules  |    | - HTTP Status Codes (201,   |
-  | - In-memory Database     |    |   404, 200, etc.)           |
-  |   (users_db, next_id)    |    | - Swagger UI Documentation  |
+  |  (UserModel, AnnModel)   |--->|   (user_view, ann_view)     |
+  | - In-memory CRUD methods |    | - HTML Management Interfaces|
+  | - Pydantic data schemas  |    | - JSON serialization        |
+  | - Auto-incrementing IDs  |    | - Swagger UI Documentation  |
   +--------------------------+    +-----------------------------+
 ```
 
@@ -43,118 +51,61 @@ The **MVC (Model-View-Controller)** pattern is an architectural design pattern t
 ```text
 fastapi-app/
 │
-├── main.py                             # Application Entrypoint (Mounts Controllers & Swagger)
+├── main.py                             # Main Application Entrypoint & Hub (Mounts all Routers)
 │
-├── models/                             # [M] MODEL LAYER
+├── models/                             # [M] MODEL LAYER (In-Memory without DB)
 │   ├── __init__.py
-│   └── user.py                         # UserModel with In-Memory CRUD functions & Schemas
+│   ├── user.py                         # UserModel: In-memory store & CRUD methods
+│   └── announcement.py                 # AnnouncementModel: In-memory store & CRUD methods (Homework)
+│
+├── views/                              # [V] VIEW LAYER (HTML Management Interfaces)
+│   ├── __init__.py
+│   ├── user_view.py                    # HTML View for User Management (Listing & Creating)
+│   └── announcement_view.py            # HTML View for Announcement Management (Homework)
 │
 ├── controllers/                        # [C] CONTROLLER LAYER
 │   ├── __init__.py
-│   ├── user_controller.py              # UserController (CRUD operations for /users)
-│   └── api_user_controller.py          # ApiUserController (CRUD operations for /api/users)
+│   ├── user_controller.py              # UserController: Handles .../users/ with View Layer
+│   ├── api_user_controller.py          # ApiUserController: Handles .../api/users/ (JSON REST API)
+│   ├── announcement_controller.py      # AnnouncementController: Handles .../announcements/ with View Layer
+│   └── api_announcement_controller.py  # ApiAnnouncementController: Handles .../api/announcements/ (JSON)
 │
-├── postman_collection.json             # Postman Test Suite (API Client)
-├── requirements.txt                    # Python Dependencies
-├── test_api.py                         # Automated Integration Tests
-├── README.md                           # System Architecture & API Documentation
-└── flask_app.py                        # Alternative Framework Reference
+├── postman_collection.json             # Postman Test Suite (Users & Announcements)
+├── requirements.txt                    # Project Dependencies
+├── test_api.py                         # Automated Test Suite
+└── README.md                           # Documentation & Architecture Guide
 ```
 
 ---
 
-### 🧱 Detailed MVC Component Breakdown
+## 📋 Route & Controller Mapping
 
-#### 1. 🗄️ Model Layer (M)
-* **Definition:** Responsible for data representation, data structures, state management, and business validation rules.
-* **Location in Code:** Defined within `main.py` under the data schemas section:
-  * `UserBase`: Base entity defining core fields (`name: str`, `age: Optional[int]`, `email: Optional[str]`).
-  * `UserCreate`: Schema for incoming user creation data.
-  * `UserUpdate`: Schema for full updates via `PUT`.
-  * `UserPatch`: Schema for partial updates via `PATCH` (all fields optional).
-  * `User`: Model representing the stored user entity, including the system-assigned `id: int`.
-  * `users_db`: In-memory storage acting as the temporary database repository (`users_db: List[User]`).
-  * `next_user_id`: Auto-incrementing identifier counter.
+### 1. 👥 User Module (Items 5 & 6)
+* **Web View Controller (`.../users/`):** [`controllers/user_controller.py`](./controllers/user_controller.py)
+  * `GET /users/` ➔ Interactive HTML Management Interface:
+    * **Listing (R):** Displays all users in a formatted table.
+    * **Creating (C):** Web form to submit new users (`POST /users/`).
+    * **Full CRUD:** Client-side edit (PUT/PATCH) and delete (DELETE) actions.
+* **REST API Controller (`.../api/users/`):** [`controllers/api_user_controller.py`](./controllers/api_user_controller.py)
+  * `GET /api/users/` ➔ Returns raw JSON user list.
+  * `GET /api/users/{id}` ➔ Returns user by ID (or 404).
+  * `POST /api/users/` ➔ Creates user (201 Created).
+  * `PUT /api/users/{id}` ➔ Full update.
+  * `PATCH /api/users/{id}` ➔ Partial update.
+  * `DELETE /api/users/{id}` ➔ Deletes user.
 
-#### 2. 👁️ View Layer (V)
-* **Definition:** Responsible for how data is presented, formatted, and exposed to the client.
-* **In REST APIs:** The View is not a set of traditional HTML pages; it is the **structured JSON representation**, **HTTP status codes**, and **API documentation interfaces**.
-  * **JSON Responses:** Automatic serialization of `User` models into JSON payloads.
-  * **HTTP Status Codes:** Semantic HTTP response codes:
-    * `200 OK`: Successful retrieval, update, or deletion.
-    * `201 Created`: Successful resource creation on `POST /api/users`.
-    * `404 Not Found`: Meaningful error response when a requested resource does not exist.
-  * **Swagger UI Documentation:** Accessible at `/api/swagger`, providing an interactive visual representation of all API endpoints and schemas.
-  * **HTML View (`/main`):** An aesthetic landing page rendered via `HTMLResponse`.
-
-#### 3. 🎮 Controller Layer (C)
-* **Definition:** Acts as the intermediary between the client, the Model, and the View. It intercepts HTTP requests, extracts parameters, coordinates business operations, and directs the response.
-* **Location in Code:** The endpoint functions decorated with `@app` routes:
-  * `health_check()`: Controller for `GET /api/health`.
-  * `create_user(user_in: UserCreate)`: Controller for `POST /api/users`. Validates input, assigns an incremental ID, inserts the entity into `users_db`, and returns the created resource.
-  * `list_users()`: Controller for `GET /api/users`. Reads all entities from storage.
-  * `get_user_by_id(id: int)`: Controller for `GET /api/users/{id}`. Finds by ID or raises 404.
-  * `update_user_put(id: int, user_in: UserUpdate)`: Controller for `PUT /api/users/{id}`. Overwrites entity fields.
-  * `update_user_patch(id: int, user_in: UserPatch)`: Controller for `PATCH /api/users/{id}`. Partially updates fields.
-  * `delete_user(id: int)`: Controller for `DELETE /api/users/{id}`. Removes entity by ID.
+### 2. 📢 Announcement Module (Homework Assignment)
+* **Web View Controller (`.../announcements/`):** [`controllers/announcement_controller.py`](./controllers/announcement_controller.py)
+  * `GET /announcements/` ➔ Interactive Web Management Interface:
+    * Displays published announcements cards with badges.
+    * Form to publish new announcements (Title, Content, Author, Category).
+    * Inline buttons to Edit and Delete announcements.
+* **REST API Controller (`.../api/announcements/`):** [`controllers/api_announcement_controller.py`](./controllers/api_announcement_controller.py)
+  * Full JSON CRUD API for announcements.
 
 ---
 
-### 📊 Summary Table of MVC Architecture Mapping
-
-| Component | Architecture Role | File / Location | Responsibility |
-|---|---|---|---|
-| **Model** | Data & State | `main.py` (`User`, `UserBase`, `users_db`) | Defines data schemas, type constraints, and in-memory persistence. |
-| **View** | Presentation | `main.py` (`response_model`, status codes, `/api/swagger`) | Serializes JSON responses, emits HTTP statuses, generates Swagger docs. |
-| **Controller** | Logic & Routing | `main.py` (Functions decorated with `@app.get/post/put/patch/delete`) | Receives client requests, processes input, interacts with models, returns views. |
-| **Client** | Consumer / Tester | `postman_collection.json`, Swagger UI | Sends HTTP requests and inspects server responses. |
-| **Testing** | Verification | `test_api.py` | Automated tests verifying Controller-Model-View integration. |
-
----
-
-## 📋 Routes: `.../users/` vs `.../api/users/` Mapping
-
-### 1. `ApiUserController` Endpoints (`.../api/users` & `.../api/users/`)
-* **Controller:** [`controllers/api_user_controller.py`](./controllers/api_user_controller.py)
-* **Purpose:** Programmatic REST API endpoints (JSON output, standard HTTP statuses).
-
-| HTTP Method | Route | Description |
-|---|---|---|
-| `GET` | `/api/users/` | List all users |
-| `GET` | `/api/users/{id}` | Get user by ID (or 404) |
-| `POST` | `/api/users/` | Create a new user (Status 201) |
-| `PUT` | `/api/users/{id}` | Fully update a user |
-| `PATCH` | `/api/users/{id}` | Partially update a user |
-| `DELETE` | `/api/users/{id}` | Delete a user |
-
-### 2. `UserController` Endpoints (`.../users` & `.../users/`)
-* **Controller:** [`controllers/user_controller.py`](./controllers/user_controller.py)
-* **Purpose:** Core application / web user resource management.
-
-| HTTP Method | Route | Description |
-|---|---|---|
-| `GET` | `/users/` | List all users |
-| `GET` | `/users/{id}` | Get user by ID (or 404) |
-| `POST` | `/users/` | Create a new user (Status 201) |
-| `PUT` | `/users/{id}` | Fully update a user |
-| `PATCH` | `/users/{id}` | Partially update a user |
-| `DELETE` | `/users/{id}` | Delete a user |
-
----
-
-## 📖 Swagger Documentation (`/api/swagger`)
-
-FastAPI generates interactive Swagger UI documentation at:
-👉 **`http://127.0.0.1:8000/api/swagger`** *(or `/docs`)*
-
-In the Swagger UI interface, the routes are neatly categorized into two distinct sections:
-* 🏷️ **`ApiUserController (/api/users)`**
-* 🏷️ **`UserController (/users)`**
-* 🏷️ **`System (/api/health)`**
-
----
-
-## 🚀 Running the API
+## 🚀 How to Run
 
 1. Navigate to the project directory:
    ```bash
@@ -164,32 +115,20 @@ In the Swagger UI interface, the routes are neatly categorized into two distinct
 2. Activate virtual environment and install dependencies:
    ```bash
    source venv/bin/activate
-   pip install fastapi "uvicorn[standard]"
+   pip install fastapi "uvicorn[standard]" jinja2 python-multipart
    ```
 
-3. Start server:
+3. Launch server:
    ```bash
    python3 main.py
    ```
-   *(or `uvicorn main:app --reload --port 8000`)*
-
-API will be live at: **`http://127.0.0.1:8000`**
 
 ---
 
-## 📮 Testing with Postman (Item 2)
+## 🌐 Interactive Web Interfaces
 
-A pre-built Postman collection is included in this repository:
-[`postman_collection.json`](./postman_collection.json)
-
-1. Open **Postman**.
-2. Press **`Cmd + O`** (or drag and drop `postman_collection.json` into Postman).
-3. You will see all 7 requests ready to test with pre-configured JSON payloads!
-
----
-
-## 📖 Swagger UI (Item 7)
-
-Open your browser and visit:
-👉 **`http://127.0.0.1:8000/api/swagger`**
-*(Also automatically redirects from `/docs`)*
+Open your browser to test each component:
+* 🏛️ **Main Application Hub:** [http://127.0.0.1:8000/](http://127.0.0.1:8000/)
+* 👥 **User Management Interface (View Layer):** [http://127.0.0.1:8000/users/](http://127.0.0.1:8000/users/)
+* 📢 **Announcement Management Interface (Homework):** [http://127.0.0.1:8000/announcements/](http://127.0.0.1:8000/announcements/)
+* 📖 **Swagger UI Documentation:** [http://127.0.0.1:8000/api/swagger](http://127.0.0.1:8000/api/swagger)
