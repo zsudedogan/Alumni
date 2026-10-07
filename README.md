@@ -112,19 +112,45 @@ fastapi-app/
 
 ---
 
-## 📋 Week 03 Whiteboard Items & Endpoints
+## 📋 Routes: `.../users/` vs `.../api/users/` Mapping
 
-| # | HTTP Method | Endpoint | Request Body | Description |
-|---|---|---|---|---|
-| **1** | `GET` | `/api/health` | None | Returns JSON system health status (`{"status": "UP"}`) |
-| **2** | - | *Install Postman* | - | Included `postman_collection.json` ready for 1-click import |
-| **3** | `POST` | `/api/users` | `{"name": "...", "age": 24, "email": "..."}` | Creates new user in-memory ("what you sent comes back") |
-| **4** | `GET` | `/api/users` | None | Lists all users |
-| **4b**| `GET` | `/api/users/{id}` | None | Retrieves single user by ID (or 404 if not found) |
-| **5** | `PUT` | `/api/users/{id}` | Full User object | Completely updates user fields |
-| **5** | `PATCH` | `/api/users/{id}` | Partial fields (e.g. `{"age": 25}`) | Partially updates specified user fields |
-| **6** | `DELETE`| `/api/users/{id}` | None | Removes user from memory (or 404 if not found) |
-| **7** | `GET` | `/api/swagger` | None | Interactive Swagger UI API documentation |
+### 1. `ApiUserController` Endpoints (`.../api/users` & `.../api/users/`)
+* **Controller:** [`controllers/api_user_controller.py`](./controllers/api_user_controller.py)
+* **Purpose:** Programmatic REST API endpoints (JSON output, standard HTTP statuses).
+
+| HTTP Method | Route | Description |
+|---|---|---|
+| `GET` | `/api/users/` | List all users |
+| `GET` | `/api/users/{id}` | Get user by ID (or 404) |
+| `POST` | `/api/users/` | Create a new user (Status 201) |
+| `PUT` | `/api/users/{id}` | Fully update a user |
+| `PATCH` | `/api/users/{id}` | Partially update a user |
+| `DELETE` | `/api/users/{id}` | Delete a user |
+
+### 2. `UserController` Endpoints (`.../users` & `.../users/`)
+* **Controller:** [`controllers/user_controller.py`](./controllers/user_controller.py)
+* **Purpose:** Core application / web user resource management.
+
+| HTTP Method | Route | Description |
+|---|---|---|
+| `GET` | `/users/` | List all users |
+| `GET` | `/users/{id}` | Get user by ID (or 404) |
+| `POST` | `/users/` | Create a new user (Status 201) |
+| `PUT` | `/users/{id}` | Fully update a user |
+| `PATCH` | `/users/{id}` | Partially update a user |
+| `DELETE` | `/users/{id}` | Delete a user |
+
+---
+
+## 📖 Swagger Documentation (`/api/swagger`)
+
+FastAPI generates interactive Swagger UI documentation at:
+👉 **`http://127.0.0.1:8000/api/swagger`** *(or `/docs`)*
+
+In the Swagger UI interface, the routes are neatly categorized into two distinct sections:
+* 🏷️ **`ApiUserController (/api/users)`**
+* 🏷️ **`UserController (/users)`**
+* 🏷️ **`System (/api/health)`**
 
 ---
 
