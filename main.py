@@ -1,249 +1,234 @@
 """
-Classroom Web API - Week 03 Implementation
-Full RESTful CRUD API with in-memory storage, health check, and Swagger UI at /api/swagger.
+Classroom Web API - Complete MVC Architecture Implementation
+Mounts User and Announcement Controllers (both Web/View and API/JSON) and configures Swagger UI.
 """
 
-from typing import List, Optional
-from fastapi import FastAPI, HTTPException, status
+from fastapi import FastAPI
 from fastapi.responses import HTMLResponse, PlainTextResponse, RedirectResponse
-from pydantic import BaseModel, EmailStr
 
-# Initialize FastAPI with custom Swagger UI endpoint (/api/swagger as requested on whiteboard item 7)
+# Import Controllers and Routers
+from controllers.api_user_controller import api_user_router, ApiUserController
+from controllers.user_controller import user_router, UserController
+from controllers.api_announcement_controller import api_announcement_router, ApiAnnouncementController
+from controllers.announcement_controller import announcement_router, AnnouncementController
+
+# ---------------------------------------------------------
+# Swagger (OpenAPI) Tag Metadata
+# ---------------------------------------------------------
+tags_metadata = [
+    {
+        "name": "ApiUserController (/api/users)",
+        "description": "RESTful CRUD API endpoints for programmatic User operations (JSON format).",
+    },
+    {
+        "name": "UserController (/users)",
+        "description": "User Controller with **View Layer** (HTML Management Interface) for listing (R), creating (C), updating, and deleting users.",
+    },
+    {
+        "name": "ApiAnnouncementController (/api/announcements)",
+        "description": "RESTful CRUD API endpoints for programmatic Announcement operations (JSON format).",
+    },
+    {
+        "name": "AnnouncementController (/announcements)",
+        "description": "Announcement Controller with **View Layer** (HTML Management Interface) to manage announcements without a database.",
+    },
+    {
+        "name": "System",
+        "description": "System health and diagnostics endpoint (`/api/health`).",
+    },
+    {
+        "name": "Reference",
+        "description": "Previous week reference routes (`/hello`, `/hello/{name}`).",
+    },
+]
+
+# Initialize FastAPI application with custom Swagger UI at /api/swagger
 app = FastAPI(
-    title="Classroom REST API - Week 03",
-    description="RESTful CRUD API for Users with Health Check and Swagger UI.",
-    version="2.0.0",
-    docs_url="/api/swagger",      # Whiteboard item 7: GET /api/swagger
+    title="Classroom REST API - Full MVC Architecture",
+    description="""
+## 🎓 Classroom MVC Architecture API
+Complete implementation of:
+1. **User Module**: `UserController` (`/users/` with View Layer) & `ApiUserController` (`/api/users/`)
+2. **Announcement Module (Homework)**: `AnnouncementController` (`/announcements/` with View Layer) & `ApiAnnouncementController` (`/api/announcements/`)
+3. **In-Memory CRUD Models**: `UserModel` & `AnnouncementModel` without database connection.
+    """,
+    version="4.0.0",
+    docs_url="/api/swagger",      # Swagger UI endpoint requested on whiteboard
     redoc_url="/api/redoc",
-    openapi_url="/api/openapi.json"
+    openapi_url="/api/openapi.json",
+    openapi_tags=tags_metadata
 )
 
-# Also redirect standard /docs to /api/swagger for convenience
+# Redirect standard /docs to /api/swagger
 @app.get("/docs", include_in_schema=False)
 async def redirect_to_swagger():
     return RedirectResponse(url="/api/swagger")
 
 
 # ---------------------------------------------------------
-# Pydantic Schemas for Users
+# Register Routers (MVC Architecture)
 # ---------------------------------------------------------
-class UserBase(BaseModel):
-    name: str
-    age: Optional[int] = None
-    email: Optional[str] = None
+# User Module
+app.include_router(api_user_router)
+app.include_router(user_router)
 
-
-class UserCreate(UserBase):
-    """Schema for creating a new user (POST /api/users)"""
-    pass
-
-
-class UserUpdate(UserBase):
-    """Schema for fully updating a user (PUT /api/users/{id})"""
-    pass
-
-
-class UserPatch(BaseModel):
-    """Schema for partially updating a user (PATCH /api/users/{id})"""
-    name: Optional[str] = None
-    age: Optional[int] = None
-    email: Optional[str] = None
-
-
-class User(UserBase):
-    """User response model containing assigned ID"""
-    id: int
+# Announcement Module (Homework)
+app.include_router(api_announcement_router)
+app.include_router(announcement_router)
 
 
 # ---------------------------------------------------------
-# In-Memory Database (Whiteboard item 3: "don't use any database yet")
+# Main Landing Hub (GET /)
 # ---------------------------------------------------------
-users_db: List[User] = [
-    User(id=1, name="Emre Yilmaz", age=24, email="emre@example.com"),
-    User(id=2, name="Sude Dogan", age=22, email="sude@example.com"),
-]
-next_user_id: int = 3
+@app.get("/", response_class=HTMLResponse, tags=["System"])
+async def main_hub():
+    """Main Application Landing Hub linking to all interfaces and documentation"""
+    html = """
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Classroom MVC API Hub</title>
+        <style>
+            :root {
+                --primary: #4f46e5;
+                --bg: #0f172a;
+                --card-bg: #1e293b;
+                --text: #f8fafc;
+                --muted: #94a3b8;
+                --accent: #38bdf8;
+                --border: #334155;
+            }
+            * { box-sizing: border-box; margin: 0; padding: 0; }
+            body {
+                font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+                background-color: var(--bg);
+                color: var(--text);
+                min-height: 100vh;
+                display: flex;
+                flex-direction: column;
+                justify-content: center;
+                align-items: center;
+                padding: 2rem 1rem;
+            }
+            .container { max-width: 860px; width: 100%; }
+            .hero { text-align: center; margin-bottom: 2.5rem; }
+            .hero h1 { font-size: 2.5rem; margin-bottom: 0.5rem; background: linear-gradient(to right, #818cf8, #38bdf8); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+            .hero p { color: var(--muted); font-size: 1.1rem; }
+            .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 1.5rem; }
+            .card {
+                background: var(--card-bg);
+                border: 1px solid var(--border);
+                border-radius: 14px;
+                padding: 1.75rem;
+                display: flex;
+                flex-direction: column;
+                justify-content: space-between;
+                transition: transform 0.2s, border-color 0.2s;
+            }
+            .card:hover { transform: translateY(-4px); border-color: var(--accent); }
+            .card h2 { font-size: 1.3rem; margin-bottom: 0.5rem; color: #ffffff; }
+            .card p { color: var(--muted); font-size: 0.9rem; margin-bottom: 1.5rem; line-height: 1.5; flex-grow: 1; }
+            .btn {
+                display: block;
+                text-align: center;
+                padding: 0.75rem 1rem;
+                background: var(--primary);
+                color: white;
+                text-decoration: none;
+                border-radius: 8px;
+                font-weight: 600;
+                font-size: 0.95rem;
+                transition: background 0.2s;
+            }
+            .btn:hover { background: #4338ca; }
+            .btn-alt { background: #0284c7; }
+            .btn-alt:hover { background: #0369a1; }
+            .btn-docs { background: #059669; }
+            .btn-docs:hover { background: #047857; }
+            .badge { display: inline-block; padding: 0.2rem 0.5rem; font-size: 0.75rem; border-radius: 4px; background: rgba(56, 189, 248, 0.15); color: var(--accent); margin-bottom: 0.75rem; }
+            footer { text-align: center; margin-top: 3rem; color: #64748b; font-size: 0.85rem; }
+        </style>
+    </head>
+    <body>
+        <div class="container">
+            <div class="hero">
+                <h1>🏛️ Classroom MVC Application Hub</h1>
+                <p>Model-View-Controller Architecture: Web Views, CRUD Controllers & REST APIs</p>
+            </div>
+
+            <div class="grid">
+                <!-- Card 1: Users -->
+                <div class="card">
+                    <div>
+                        <span class="badge">Whiteboard 5 & 6</span>
+                        <h2>👥 Users Management</h2>
+                        <p>Web interface for listing (R) and creating (C) users with full in-memory CRUD operations and View Layer.</p>
+                    </div>
+                    <a href="/users/" class="btn">Open Users View</a>
+                </div>
+
+                <!-- Card 2: Announcements (Homework) -->
+                <div class="card">
+                    <div>
+                        <span class="badge">Homework Assignment</span>
+                        <h2>📢 Announcements</h2>
+                        <p>Complete announcement management interface without database: create, read, update, delete.</p>
+                    </div>
+                    <a href="/announcements/" class="btn btn-alt">Open Announcements View</a>
+                </div>
+
+                <!-- Card 3: Swagger UI -->
+                <div class="card">
+                    <div>
+                        <span class="badge">Whiteboard 7</span>
+                        <h2>📖 Swagger API Docs</h2>
+                        <p>Interactive OpenAPI documentation for all 4 controllers (Users & Announcements API & Web endpoints).</p>
+                    </div>
+                    <a href="/api/swagger" class="btn btn-docs" target="_blank">Launch Swagger UI</a>
+                </div>
+            </div>
+
+            <footer>
+                Department of Management Information Systems • Istanbul University of Economics • MVC Lab
+            </footer>
+        </div>
+    </body>
+    </html>
+    """
+    return HTMLResponse(content=html)
 
 
 # ---------------------------------------------------------
-# 1. GET /api/health -> JSON
+# System Health Check Endpoint
 # ---------------------------------------------------------
 @app.get(
     "/api/health",
-    summary="1. Health Check",
+    summary="Health Check",
     tags=["System"]
 )
 async def health_check():
-    """
-    Whiteboard item 1:
-    GET /api/health -> returns JSON indicating API health status.
-    """
+    """Returns API health status"""
     return {
         "status": "UP",
-        "message": "API is running healthy",
-        "version": "2.0.0"
+        "message": "Classroom MVC API is running healthy",
+        "modules": ["Users", "Announcements"],
+        "architecture": "MVC (Model, View, Controller)",
+        "swagger_docs": "/api/swagger"
     }
 
 
 # ---------------------------------------------------------
-# 3. POST /api/users (don't use any database yet)
+# Reference Endpoints (Week 02)
 # ---------------------------------------------------------
-@app.post(
-    "/api/users",
-    response_model=User,
-    status_code=status.HTTP_201_CREATED,
-    summary="3. Create User",
-    tags=["Users"]
-)
-async def create_user(user_in: UserCreate):
-    """
-    Whiteboard item 3:
-    POST /api/users (in-memory, no database yet).
-    Returns the newly created user object with its assigned ID ("what you sent comes back").
-    """
-    global next_user_id
-    new_user = User(id=next_user_id, **user_in.model_dump())
-    next_user_id += 1
-    users_db.append(new_user)
-    return new_user
-
-
-# ---------------------------------------------------------
-# 4. GET /api/users -> list all users
-# ---------------------------------------------------------
-@app.get(
-    "/api/users",
-    response_model=List[User],
-    summary="4. List All Users",
-    tags=["Users"]
-)
-async def list_users():
-    """
-    Whiteboard item 4:
-    GET /api/users -> returns a list of all existing users.
-    """
-    return users_db
-
-
-# ---------------------------------------------------------
-# 4b. GET /api/users/{id} -> get user by id
-# ---------------------------------------------------------
-@app.get(
-    "/api/users/{id}",
-    response_model=User,
-    summary="4b. Get User by ID",
-    tags=["Users"]
-)
-async def get_user_by_id(id: int):
-    """
-    Whiteboard item 4b:
-    GET /api/users/{id} -> returns the user matching the given ID.
-    Returns 404 Not Found if user doesn't exist.
-    """
-    for user in users_db:
-        if user.id == id:
-            return user
-    raise HTTPException(
-        status_code=status.HTTP_404_NOT_FOUND,
-        detail=f"User with ID {id} was not found"
-    )
-
-
-# ---------------------------------------------------------
-# 5. PUT /api/users/{id} -> full update
-#    PATCH /api/users/{id} -> partial update
-# ---------------------------------------------------------
-@app.put(
-    "/api/users/{id}",
-    response_model=User,
-    summary="5. Full Update User (PUT)",
-    tags=["Users"]
-)
-async def update_user_put(id: int, user_in: UserUpdate):
-    """
-    Whiteboard item 5:
-    PUT /api/users/{id} -> replaces all fields of the specified user.
-    """
-    for index, user in enumerate(users_db):
-        if user.id == id:
-            updated_user = User(id=id, **user_in.model_dump())
-            users_db[index] = updated_user
-            return updated_user
-    raise HTTPException(
-        status_code=status.HTTP_404_NOT_FOUND,
-        detail=f"User with ID {id} was not found"
-    )
-
-
-@app.patch(
-    "/api/users/{id}",
-    response_model=User,
-    summary="5. Partial Update User (PATCH)",
-    tags=["Users"]
-)
-async def update_user_patch(id: int, user_in: UserPatch):
-    """
-    Whiteboard item 5:
-    PATCH /api/users/{id} -> updates only the provided fields of the user.
-    """
-    for index, user in enumerate(users_db):
-        if user.id == id:
-            stored_data = user.model_dump()
-            update_data = user_in.model_dump(exclude_unset=True)
-            stored_data.update(update_data)
-            updated_user = User(**stored_data)
-            users_db[index] = updated_user
-            return updated_user
-    raise HTTPException(
-        status_code=status.HTTP_404_NOT_FOUND,
-        detail=f"User with ID {id} was not found"
-    )
-
-
-# ---------------------------------------------------------
-# 6. DELETE /api/users/{id}
-# ---------------------------------------------------------
-@app.delete(
-    "/api/users/{id}",
-    summary="6. Delete User",
-    tags=["Users"]
-)
-async def delete_user(id: int):
-    """
-    Whiteboard item 6:
-    DELETE /api/users/{id} -> removes user with matching ID from memory.
-    """
-    for index, user in enumerate(users_db):
-        if user.id == id:
-            removed_user = users_db.pop(index)
-            return {
-                "message": f"User with ID {id} has been successfully deleted",
-                "deleted_user": removed_user
-            }
-    raise HTTPException(
-        status_code=status.HTTP_404_NOT_FOUND,
-        detail=f"User with ID {id} was not found"
-    )
-
-
-# ---------------------------------------------------------
-# Previous Week Routes (Preserved for Reference & Testing)
-# ---------------------------------------------------------
-@app.get("/", response_class=PlainTextResponse, tags=["Week 02 Reference"])
-async def root():
-    return "ok"
-
-@app.get("/hello", response_class=PlainTextResponse, tags=["Week 02 Reference"])
+@app.get("/hello", response_class=PlainTextResponse, tags=["Reference"])
 async def say_hello():
     return "Hello, World!"
 
-@app.get("/hello/{name}", response_class=PlainTextResponse, tags=["Week 02 Reference"])
+@app.get("/hello/{name}", response_class=PlainTextResponse, tags=["Reference"])
 async def say_hello_name(name: str):
     return f"Hello, {name.strip().capitalize()}!"
-
-@app.get("/sum/{number1}/{number2}", tags=["Week 02 Reference"])
-async def calculate_sum(number1: int, number2: int):
-    return {"number1": number1, "number2": number2, "sum": number1 + number2}
 
 
 # ---------------------------------------------------------
