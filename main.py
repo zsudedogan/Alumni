@@ -42,6 +42,16 @@ tags_metadata = [
     },
 ]
 
+from contextlib import asynccontextmanager
+from database import engine, Base
+import models.db_entities
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    # Startup: ensure tables exist in database
+    Base.metadata.create_all(bind=engine)
+    yield
+
 # Initialize FastAPI application with custom Swagger UI at /api/swagger
 app = FastAPI(
     title="Classroom REST API - Full MVC Architecture",
@@ -50,19 +60,21 @@ app = FastAPI(
 Complete implementation of:
 1. **User Module**: `UserController` (`/users/` with View Layer) & `ApiUserController` (`/api/users/`)
 2. **Announcement Module (Homework)**: `AnnouncementController` (`/announcements/` with View Layer) & `ApiAnnouncementController` (`/api/announcements/`)
-3. **In-Memory CRUD Models**: `UserModel` & `AnnouncementModel` without database connection.
+3. **Database CRUD Persistence**: Connected to PostgreSQL/SQLite via SQLAlchemy & Alembic.
     """,
     version="4.0.0",
     docs_url="/api/swagger",      # Swagger UI endpoint requested on whiteboard
     redoc_url="/api/redoc",
     openapi_url="/api/openapi.json",
-    openapi_tags=tags_metadata
+    openapi_tags=tags_metadata,
+    lifespan=lifespan
 )
 
 # Redirect standard /docs to /api/swagger
 @app.get("/docs", include_in_schema=False)
 async def redirect_to_swagger():
     return RedirectResponse(url="/api/swagger")
+
 
 
 # ---------------------------------------------------------

@@ -120,33 +120,44 @@ The application strictly decouples concerns across three distinct layers:
 fastapi-app/
 │
 ├── Dockerfile                          # Docker container build specification
-├── docker-compose.yml                  # Docker Compose service definition
+├── docker-compose.yml                  # Docker Compose (PostgreSQL 15 + Web API)
 ├── .dockerignore                       # Build context exclusion rules
-├── forgetting_test.py                  # Automated script for The Forgetting Test
+├── .env.example                        # Template for environment variables (committed)
+├── .env                                # Local environment secrets (git-ignored)
+├── database.py                         # SQLAlchemy engine & session configuration
+├── seed.py                             # Database seeder (baseline & factory data)
 │
-├── main.py                             # Main Application Entrypoint & Hub
+├── alembic/                            # Database migrations directory
+│   ├── env.py                          # Alembic migration environment
+│   └── versions/                       # Migration version scripts
+├── factories/                          # Synthetic data factories (Faker)
+│   ├── user_factory.py                 # User data generator
+│   └── announcement_factory.py         # Announcement data generator
 │
-├── models/                             # [M] MODEL LAYER (In-Memory without DB)
+├── models/                             # [M] MODEL LAYER (Database & Pydantic DTOs)
 │   ├── __init__.py
-│   ├── user.py                         # UserModel: In-memory store & CRUD methods
-│   └── announcement.py                 # AnnouncementModel: In-memory store & CRUD methods
+│   ├── db_entities.py                  # SQLAlchemy ORM Entities (UserEntity, AnnEntity)
+│   ├── user.py                         # UserModel: DB CRUD & Pydantic schemas
+│   └── announcement.py                 # AnnouncementModel: DB CRUD & Pydantic schemas
 │
 ├── views/                              # [V] VIEW LAYER (HTML Management Interfaces)
 │   ├── __init__.py
-│   ├── user_view.py                    # HTML View for User Management (Listing & Creating)
+│   ├── user_view.py                    # HTML View for User Management
 │   └── announcement_view.py            # HTML View for Announcement Management
 │
 ├── controllers/                        # [C] CONTROLLER LAYER
 │   ├── __init__.py
 │   ├── user_controller.py              # UserController: Handles .../users/ with View Layer
-│   ├── api_user_controller.py          # ApiUserController: Handles .../api/users/ (JSON REST API)
-│   ├── announcement_controller.py      # AnnouncementController: Handles .../announcements/ with View Layer
-│   └── api_announcement_controller.py  # ApiAnnouncementController: Handles .../api/announcements/ (JSON)
+│   ├── api_user_controller.py          # ApiUserController: Handles .../api/users/ (JSON)
+│   ├── announcement_controller.py      # AnnouncementController: Handles .../announcements/
+│   └── api_announcement_controller.py  # ApiAnnouncementController: Handles .../api/announcements/
 │
-├── postman_collection.json             # Postman Test Suite (Users & Announcements)
-├── requirements.txt                    # Project Dependencies
-├── test_api.py                         # Automated Test Suite
-├── ddd.md                              # Data Design Document (Schemas, Constraints & ERD)
+├── main.py                             # Main Application Hub with lifespan DB init
+├── forgetting_test.py                  # Automated script for The Forgetting Test
+├── postman_collection.json             # Postman Test Suite
+├── requirements.txt                    # Project Dependencies (SQLAlchemy, Alembic, Faker)
+├── test_api.py                         # Automated Pytest Suite
+├── ddd.md                              # Data Design Document
 └── README.md                           # Documentation & Architecture Guide
 ```
 
@@ -180,6 +191,40 @@ A dedicated, formal **[Data Design Document (ddd.md)](./ddd.md)** is maintained 
   * `GET /announcements/` ➔ Interactive Web Management Interface.
 * **REST API Controller (`.../api/announcements/`):** [`controllers/api_announcement_controller.py`](./controllers/api_announcement_controller.py)
   * Full JSON CRUD API for announcements.
+
+---
+
+## 🗄️ Database, Migrations & Seeding
+
+The application uses **SQLAlchemy 2.0** with **Alembic** migrations and support for both PostgreSQL (in Docker) and SQLite (for standalone local development).
+
+### 1. Environment Configuration (`.env`)
+Copy the environment template:
+```bash
+cp .env.example .env
+```
+*(The `.env` file is git-ignored to prevent credential leaks).*
+
+### 2. Running Database Migrations
+Apply all schema changes:
+```bash
+alembic upgrade head
+```
+
+To create a new migration after editing models:
+```bash
+alembic revision --autogenerate -m "describe changes"
+```
+
+### 3. Database Seeding (Baseline & Factories)
+Populate the database with baseline classroom records and realistic synthetic records generated via Faker:
+```bash
+# Seed default users (8) and announcements (4)
+python3 seed.py
+
+# Clean database first and seed custom batch sizes:
+python3 seed.py --clean --users 15 --announcements 8
+```
 
 ---
 

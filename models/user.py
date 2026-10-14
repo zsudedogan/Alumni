@@ -1,10 +1,12 @@
 """
 User Model - MVC Architecture
-Encapsulates User data structure and in-memory CRUD operations without any database connection.
+Encapsulates User data structure and relational database CRUD operations using SQLAlchemy.
 """
 
 from typing import List, Optional
 from pydantic import BaseModel
+from database import SessionLocal
+from models.db_entities import UserEntity
 
 
 # ---------------------------------------------------------
@@ -40,40 +42,60 @@ class User(UserBase):
 
 
 # ---------------------------------------------------------
-# User Model Class (In-Memory CRUD without Database)
+# User Model Class (Database CRUD Repository)
 # ---------------------------------------------------------
 class UserModel:
     """
-    In-memory User Model repository.
-    Handles data storage and CRUD operations without an external database.
+    User Model repository interfacing with the database.
+    Provides persistence across restarts and container lifecycle.
     """
-    # In-memory storage acting as temporary data store
-    _users: List[User] = [
-        User(id=1, name="Emre Yilmaz", age=24, email="emre@example.com"),
-        User(id=2, name="Sude Dogan", age=22, email="sude@example.com"),
+
+    # Baseline seed data for initial setup
+    _seed_data = [
+        {"id": 1, "name": "Emre Yilmaz", "age": 24, "email": "emre@example.com"},
+        {"id": 2, "name": "Sude Dogan", "age": 22, "email": "sude@example.com"},
     ]
-    _next_id: int = 3
+
+    @classmethod
+    def _ensure_baseline_data(cls, db):
+        """Ensures default classroom baseline records exist if table is empty"""
+        if db.query(UserEntity).count() == 0:
+            for item in cls._seed_data:
+                user = UserEntity(id=item["id"], name=item["name"], age=item["age"], email=item["email"])
+                db.add(user)
+            db.commit()
 
     # 1. CREATE
     @classmethod
     def create(cls, user_data: UserCreate) -> User:
         """
-        Creates a new user with an auto-incremented ID and saves to memory.
+        Creates a new user in the database with auto-increment ID.
         CRUD: Create
         """
-        new_user = User(id=cls._next_id, **user_data.model_dump())
-        cls._next_id += 1
-        cls._users.append(new_user)
-        return new_user
+        db = SessionLocal()
+        try:
+            entity = UserEntity(**user_data.model_dump())
+            db.add(entity)
+            db.commit()
+            db.refresh(entity)
+            return User(id=entity.id, name=entity.name, age=entity.age, email=entity.email)
+        finally:
+            db.close()
 
     # 2. READ ALL
     @classmethod
     def get_all(cls) -> List[User]:
         """
-        Retrieves all users from in-memory storage.
+        Retrieves all users from the database ordered by ID.
         CRUD: Read (List)
         """
-        return cls._users
+        db = SessionLocal()
+        try:
+            cls._ensure_baseline_data(db)
+            entities = db.query(UserEntity).order_by(UserEntity.id.asc()).all()
+            return [User(id=e.id, name=e.name, age=e.age, email=e.email) for e in entities]
+        finally:
+            db.close()
 
     # 3. READ BY ID
     @classmethod
@@ -82,24 +104,36 @@ class UserModel:
         Finds and returns a single user by ID. Returns None if not found.
         CRUD: Read (Single)
         """
-        for user in cls._users:
-            if user.id == user_id:
-                return user
-        return None
+        db = SessionLocal()
+        try:
+            entity = db.query(UserEntity).filter(UserEntity.id == user_id).first()
+            if entity:
+                return User(id=entity.id, name=entity.name, age=entity.age, email=entity.email)
+            return None
+        finally:
+            db.close()
 
     # 4. UPDATE (FULL - PUT)
     @classmethod
     def update(cls, user_id: int, user_data: UserUpdate) -> Optional[User]:
         """
-        Replaces all attributes of an existing user. Returns None if user not found.
+        Replaces all attributes of an existing user in the database. Returns None if user not found.
         CRUD: Update (Full / PUT)
         """
-        for index, user in enumerate(cls._users):
-            if user.id == user_id:
-                updated_user = User(id=user_id, **user_data.model_dump())
-                cls._users[index] = updated_user
-                return updated_user
-        return None
+        db = SessionLocal()
+        try:
+            entity = db.query(UserEntity).filter(UserEntity.id == user_id).first()
+            if not entity:
+                return None
+            data = user_data.model_dump()
+            entity.name = data["name"]
+            entity.age = data.get("age")
+            entity.email = data.get("email")
+            db.commit()
+            db.refresh(entity)
+            return User(id=entity.id, name=entity.name, age=entity.age, email=entity.email)
+        finally:
+            db.close()
 
     # 5. PATCH (PARTIAL - PATCH)
     @classmethod
@@ -108,31 +142,46 @@ class UserModel:
         Partially updates specified attributes of an existing user. Returns None if user not found.
         CRUD: Update (Partial / PATCH)
         """
-        for index, user in enumerate(cls._users):
-            if user.id == user_id:
-                stored_dict = user.model_dump()
-                update_dict = user_data.model_dump(exclude_unset=True)
-                stored_dict.update(update_dict)
-                patched_user = User(**stored_dict)
-                cls._users[index] = patched_user
-                return patched_user
-        return None
+        db = SessionLocal()
+        try:
+            entity = db.query(UserEntity).filter(UserEntity.id == user_id).first()
+            if not entity:
+                return None
+            data = user_data.model_dump(exclude_unset=True)
+            if "name" in data and data["name"] is not None:
+                entity.name = data["name"]
+            if "age" in data:
+                entity.age = data["age"]
+            if "email" in data:
+                entity.email = data["email"]
+            db.commit()
+            db.refresh(entity)
+            return User(id=entity.id, name=entity.name, age=entity.age, email=entity.email)
+        finally:
+            db.close()
 
     # 6. DELETE
     @classmethod
     def delete(cls, user_id: int) -> Optional[User]:
         """
-        Removes a user with the specified ID from storage. Returns the deleted user or None.
+        Removes a user with the specified ID from the database. Returns the deleted user or None.
         CRUD: Delete
         """
-        for index, user in enumerate(cls._users):
-            if user.id == user_id:
-                return cls._users.pop(index)
-        return None
+        db = SessionLocal()
+        try:
+            entity = db.query(UserEntity).filter(UserEntity.id == user_id).first()
+            if not entity:
+                return None
+            deleted_user = User(id=entity.id, name=entity.name, age=entity.age, email=entity.email)
+            db.delete(entity)
+            db.commit()
+            return deleted_user
+        finally:
+            db.close()
 
 
 # ---------------------------------------------------------
-# Standalone Functional Helpers (For functional programming style)
+# Standalone Functional Helpers
 # ---------------------------------------------------------
 def create_user_record(user_data: UserCreate) -> User:
     return UserModel.create(user_data)

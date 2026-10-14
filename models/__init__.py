@@ -1,6 +1,6 @@
 """
 Models package for MVC architecture.
-Contains User and Announcement models.
+Contains User and Announcement models, Pydantic schemas, and SQLAlchemy ORM entities.
 """
 from models.user import User, UserBase, UserCreate, UserUpdate, UserPatch, UserModel
 from models.announcement import (
@@ -11,6 +11,7 @@ from models.announcement import (
     AnnouncementPatch,
     AnnouncementModel,
 )
+from models.db_entities import UserEntity, AnnouncementEntity
 
 __all__ = [
     "User",
@@ -25,4 +26,6 @@ __all__ = [
     "AnnouncementUpdate",
     "AnnouncementPatch",
     "AnnouncementModel",
+    "UserEntity",
+    "AnnouncementEntity",
 ]

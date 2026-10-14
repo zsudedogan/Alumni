@@ -164,27 +164,23 @@ The `Announcement` entity represents institutional and departmental notices disp
 
 ---
 
-## 6. Storage Lifecycle & The Forgetting Test
+## 6. Storage Lifecycle & Persistence Architecture
 
-### 6.1. Current Phase: In-Memory Storage (Volatile)
-* **Mechanic:** Data collections reside in RAM within private class attributes (`UserModel._users`, `AnnouncementModel._announcements`).
-* **Concurrency:** Thread-safe within a single Uvicorn worker process.
-* **Lifespan:** Bound to the Python runtime process.
-* **Container Implication:** As demonstrated in *The Forgetting Test*, running `docker compose down` destroys the container process and clears all records created during execution.
+### 6.1. Active Phase: Relational Database Persistence (Production & Docker)
+* **Database Engine:** PostgreSQL 15 (`postgres:15-alpine`) inside Docker, with automatic SQLite fallback (`app.db`) for local standalone execution.
+* **Volume Persistence:** Data is stored in the Docker named volume `postgres_data:/var/lib/postgresql/data`. When running `docker compose down`, container processes stop but volume data is preserved.
+* **ORM & Session Management:** Managed via SQLAlchemy 2.0 (`SessionLocal`), binding Pydantic DTOs with `UserEntity` and `AnnouncementEntity` database tables.
 
-### 6.2. Next Phase: Persistence Architecture Roadmap
-To pass the persistence requirement and remember records across container recreations:
-1. **File-backed SQLite / PostgreSQL:** Connect models to a relational database using SQLAlchemy / SQLModel.
-2. **Docker Volumes:** Mount a persistent volume in `docker-compose.yml`:
-   ```yaml
-   services:
-     web:
-       volumes:
-         - app_data:/app/data
-   volumes:
-     app_data:
-   ```
-3. **Database Migrations:** Employ Alembic for schema tracking and version control.
+### 6.2. Migrations, Factories & Seeding Pipeline
+1. **Environment Variables (`.env`):**
+   * Sensitive credentials (`POSTGRES_USER`, `POSTGRES_PASSWORD`, `DATABASE_URL`) are stored in `.env` and excluded from version control via `.gitignore`.
+   * Committed template provided as `.env.example`.
+2. **Schema Versioning with Alembic:**
+   * Automated migrations located in `alembic/versions/` (e.g. `21c02eef3fb8_create_users_and_announcements_tables.py`).
+   * Migrations are executed with `alembic upgrade head`.
+3. **Factories & Seeding (`seed.py`):**
+   * Uses Faker via `UserFactory` and `AnnouncementFactory` to generate realistic synthetic testing data.
+   * `seed.py` seeds baseline records (Emre Yilmaz, Sude Dogan, faculty notices) plus configurable batches of factory entities.
 
 ---
 
