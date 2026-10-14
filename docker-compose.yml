@@ -1,0 +1,24 @@
+version: '3.8'
+
+services:
+  web:
+    build: .
+    container_name: classroom_mvc_api
+    ports:
+      - "8000:8000"
+    environment:
+      - PYTHONUNBUFFERED=1
+    restart: unless-stopped
+    # ------------------------------------------------------------------
+    # The Forgetting Test Explanation:
+    # 1. Without volumes (current state):
+    #    When you run 'docker compose down', the container is destroyed
+    #    and all in-memory records (RAM) are forgotten / lost.
+    #
+    # 2. To persist data across 'docker compose down', attach a volume:
+    # volumes:
+    #   - app_data:/app/data
+    # ------------------------------------------------------------------
+
+# volumes:
+#   app_data:
