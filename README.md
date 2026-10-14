@@ -2,6 +2,9 @@
 
 This repository implements all classroom exercises, the complete homework assignment, and the container lifecycle experiment: **The Forgetting Test**.
 
+> 📊 **Data Design Specification:**
+> For comprehensive entity definitions, schema constraints, data dictionary, and Entity-Relationship Diagrams (ERD), see the **[Data Design Document (ddd.md)](./ddd.md)**.
+
 ---
 
 ## 🧪 The Forgetting Test (Container Lifecycle & Persistence)
@@ -143,6 +146,7 @@ fastapi-app/
 ├── postman_collection.json             # Postman Test Suite (Users & Announcements)
 ├── requirements.txt                    # Project Dependencies
 ├── test_api.py                         # Automated Test Suite
+├── ddd.md                              # Data Design Document (Schemas, Constraints & ERD)
 └── README.md                           # Documentation & Architecture Guide
 ```
 
