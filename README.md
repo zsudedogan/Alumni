@@ -170,7 +170,7 @@ A dedicated, formal **[Data Design Document (ddd.md)](./ddd.md)** is maintained 
 > 🔗 **Direct Document Link:** **[Open Data Design Document (ddd.md)](./ddd.md)**
 
 ### Key Topics Covered in `ddd.md`:
-* **Domain Entities & Data Dictionary:** Comprehensive schema specifications, data types, nullability, auto-increment rules, and constraints for `User` and `Announcement` (along with reference entities `Alumni` and `Auto`).
+* **Domain Entities & Data Dictionary:** Comprehensive schema specifications, data types, nullability, auto-increment rules, and constraints for `User`, `Announcement`, and `JobPosting` (along with reference entities `Alumni` and `Auto`).
 * **Entity-Relationship Diagram (ERD):** Visual representation of domain entities with primary keys and constraints using Mermaid.
 * **Pydantic Schemas & DTOs:** Separation of request and response representations (`Base`, `Create`, `Update`, `Patch`, `Full Model`).
 * **CRUD to Controller Mapping:** Detailed mapping table connecting HTTP methods (`GET`, `POST`, `PUT`, `PATCH`, `DELETE`) and route paths to model methods.
