@@ -11,6 +11,12 @@ from controllers.api_user_controller import api_user_router, ApiUserController
 from controllers.user_controller import user_router, UserController
 from controllers.api_announcement_controller import api_announcement_router, ApiAnnouncementController
 from controllers.announcement_controller import announcement_router, AnnouncementController
+from controllers.api_job_posting_controller import (
+    api_job_posting_router,
+    nested_job_posting_router,
+    ApiJobPostingController,
+)
+from controllers.job_posting_controller import job_posting_router, JobPostingController
 
 # ---------------------------------------------------------
 # Swagger (OpenAPI) Tag Metadata
@@ -30,7 +36,19 @@ tags_metadata = [
     },
     {
         "name": "AnnouncementController (/announcements)",
-        "description": "Announcement Controller with **View Layer** (HTML Management Interface) to manage announcements without a database.",
+        "description": "Announcement Controller with **View Layer** (HTML Management Interface) to manage announcements.",
+    },
+    {
+        "name": "ApiJobPostingController (/api/job-postings)",
+        "description": "**Direct Routes**: Full CRUD operations for Job Postings (/api/job-postings).",
+    },
+    {
+        "name": "Nested Routes: Users -> JobPostings (/api/users/{user_id}/job-postings)",
+        "description": "**Nested Routes**: Demonstrates 1-to-many relationship endpoints (/api/users/{user_id}/job-postings).",
+    },
+    {
+        "name": "JobPostingController (/job-postings)",
+        "description": "Job Posting Controller with **View Layer** (HTML Management Interface).",
     },
     {
         "name": "System",
@@ -87,6 +105,12 @@ app.include_router(user_router)
 # Announcement Module (Homework)
 app.include_router(api_announcement_router)
 app.include_router(announcement_router)
+
+# Job Posting Module (Direct & Nested Routes)
+app.include_router(api_job_posting_router)
+app.include_router(nested_job_posting_router)
+app.include_router(job_posting_router)
+
 
 
 # ---------------------------------------------------------
@@ -191,12 +215,22 @@ async def main_hub():
                     <a href="/announcements/" class="btn btn-alt">Open Announcements View</a>
                 </div>
 
-                <!-- Card 3: Swagger UI -->
+                <!-- Card 3: Job Postings -->
                 <div class="card">
                     <div>
-                        <span class="badge">Whiteboard 7</span>
+                        <span class="badge">Direct & Nested Routes</span>
+                        <h2>💼 Career & Job Postings</h2>
+                        <p>Explore opportunities or publish listings. Supports direct routes and nested user-resource relationships.</p>
+                    </div>
+                    <a href="/job-postings/" class="btn" style="background: #0284c7;">Open Job Postings View</a>
+                </div>
+
+                <!-- Card 4: Swagger UI -->
+                <div class="card">
+                    <div>
+                        <span class="badge">OpenAPI Documentation</span>
                         <h2>📖 Swagger API Docs</h2>
-                        <p>Interactive OpenAPI documentation for all 4 controllers (Users & Announcements API & Web endpoints).</p>
+                        <p>Interactive OpenAPI documentation for all controllers (Users, Announcements, Direct & Nested Job Postings).</p>
                     </div>
                     <a href="/api/swagger" class="btn btn-docs" target="_blank">Launch Swagger UI</a>
                 </div>

@@ -192,6 +192,22 @@ A dedicated, formal **[Data Design Document (ddd.md)](./ddd.md)** is maintained 
 * **REST API Controller (`.../api/announcements/`):** [`controllers/api_announcement_controller.py`](./controllers/api_announcement_controller.py)
   * Full JSON CRUD API for announcements.
 
+### 3. 💼 Job Posting Module (Direct & Nested Routes)
+* **Web View Controller (`.../job-postings/`):** [`controllers/job_posting_controller.py`](./controllers/job_posting_controller.py)
+  * `GET /job-postings/` ➔ Interactive Career Portal & Job Management Interface.
+* **Direct REST API Controller (`.../api/job-postings/`):** [`controllers/api_job_posting_controller.py`](./controllers/api_job_posting_controller.py)
+  * `GET /api/job-postings` ➔ List all job postings (supports `active_only`, `user_id` query filters).
+  * `GET /api/job-postings/{id}` ➔ Retrieve single job posting with publisher details.
+  * `POST /api/job-postings` ➔ Create a new job posting.
+  * `PUT /api/job-postings/{id}` ➔ Full update.
+  * `PATCH /api/job-postings/{id}` ➔ Partial update.
+  * `DELETE /api/job-postings/{id}` ➔ Delete job posting.
+* **Nested REST API Routes (`.../api/users/{user_id}/job-postings/`):**
+  * `GET /api/users/{user_id}/job-postings` ➔ List all postings created by a specific user (1-to-many relationship).
+  * `POST /api/users/{user_id}/job-postings` ➔ Create a job posting under a specific user (binds `user_id`).
+  * `GET /api/users/{user_id}/job-postings/{job_id}` ➔ Retrieve specific user-owned posting.
+  * `DELETE /api/users/{user_id}/job-postings/{job_id}` ➔ Delete specific user-owned posting.
+
 ---
 
 ## 🗄️ Database, Migrations & Seeding
@@ -254,4 +270,6 @@ Open your browser to test each component:
 * 🏛️ **Main Application Hub:** [http://127.0.0.1:8000/](http://127.0.0.1:8000/)
 * 👥 **User Management Interface (View Layer):** [http://127.0.0.1:8000/users/](http://127.0.0.1:8000/users/)
 * 📢 **Announcement Management Interface:** [http://127.0.0.1:8000/announcements/](http://127.0.0.1:8000/announcements/)
+* 💼 **Job Postings Management Interface:** [http://127.0.0.1:8000/job-postings/](http://127.0.0.1:8000/job-postings/)
 * 📖 **Swagger UI Documentation:** [http://127.0.0.1:8000/api/swagger](http://127.0.0.1:8000/api/swagger)
+
