@@ -41,6 +41,12 @@ class User(UserBase):
     id: int
 
 
+class UserWithJobPostings(User):
+    """User entity including list of posted job openings (demonstrating 1-to-many relationship)"""
+    job_postings: List[dict] = []
+
+
+
 # ---------------------------------------------------------
 # User Model Class (Database CRUD Repository)
 # ---------------------------------------------------------
@@ -178,6 +184,37 @@ class UserModel:
             return deleted_user
         finally:
             db.close()
+
+    # 7. READ USER WITH JOB POSTINGS (Demonstrating Relationship)
+    @classmethod
+    def get_user_with_jobs(cls, user_id: int) -> Optional[UserWithJobPostings]:
+        """Fetches a user along with all job postings they created using the ORM relationship"""
+        db = SessionLocal()
+        try:
+            entity = db.query(UserEntity).filter(UserEntity.id == user_id).first()
+            if not entity:
+                return None
+            jobs_summary = [
+                {
+                    "id": j.id,
+                    "title": j.title,
+                    "company": j.company,
+                    "location": j.location,
+                    "job_type": j.job_type,
+                    "is_active": j.is_active
+                }
+                for j in entity.job_postings
+            ]
+            return UserWithJobPostings(
+                id=entity.id,
+                name=entity.name,
+                age=entity.age,
+                email=entity.email,
+                job_postings=jobs_summary
+            )
+        finally:
+            db.close()
+
 
 
 # ---------------------------------------------------------

@@ -4,6 +4,7 @@ Formal database schema definitions matching Data Design Document (ddd.md).
 """
 
 from sqlalchemy import Column, Integer, String, Text, Boolean, ForeignKey
+from sqlalchemy.orm import relationship
 from database import Base
 
 
@@ -15,6 +16,9 @@ class UserEntity(Base):
     name = Column(String(255), nullable=False)
     age = Column(Integer, nullable=True)
     email = Column(String(255), nullable=True)
+
+    # Relationships
+    job_postings = relationship("JobPostingEntity", back_populates="user", cascade="all, delete-orphan")
 
     def __repr__(self):
         return f"<UserEntity(id={self.id}, name='{self.name}', email='{self.email}')>"
@@ -53,6 +57,10 @@ class JobPostingEntity(Base):
     created_at = Column(String(20), nullable=True)
     user_id = Column(Integer, ForeignKey("users.id"), nullable=True)
 
+    # Relationships
+    user = relationship("UserEntity", back_populates="job_postings")
+
     def __repr__(self):
         return f"<JobPostingEntity(id={self.id}, title='{self.title}', company='{self.company}', is_active={self.is_active})>"
+
 
