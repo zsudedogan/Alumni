@@ -11,7 +11,7 @@ from models.announcement import (
     AnnouncementPatch,
     AnnouncementModel,
 )
-from models.db_entities import UserEntity, AnnouncementEntity
+from models.db_entities import UserEntity, AnnouncementEntity, JobPostingEntity
 
 __all__ = [
     "User",
@@ -28,4 +28,6 @@ __all__ = [
     "AnnouncementModel",
     "UserEntity",
     "AnnouncementEntity",
+    "JobPostingEntity",
 ]
+

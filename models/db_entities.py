@@ -3,7 +3,7 @@ SQLAlchemy ORM Entities
 Formal database schema definitions matching Data Design Document (ddd.md).
 """
 
-from sqlalchemy import Column, Integer, String, Text
+from sqlalchemy import Column, Integer, String, Text, Boolean, ForeignKey
 from database import Base
 
 
@@ -33,3 +33,26 @@ class AnnouncementEntity(Base):
 
     def __repr__(self):
         return f"<AnnouncementEntity(id={self.id}, title='{self.title}', category='{self.category}')>"
+
+
+class JobPostingEntity(Base):
+    """Database ORM mapping for job_postings table"""
+    __tablename__ = "job_postings"
+
+    id = Column(Integer, primary_key=True, index=True, autoincrement=True)
+    title = Column(String(255), nullable=False)
+    company = Column(String(255), nullable=False)
+    location = Column(String(255), nullable=True, default="Remote")
+    job_type = Column(String(50), nullable=True, default="Full-time")
+    description = Column(Text, nullable=False)
+    requirements = Column(Text, nullable=True)
+    salary_range = Column(String(100), nullable=True)
+    application_deadline = Column(String(20), nullable=True)
+    contact_email = Column(String(255), nullable=True)
+    is_active = Column(Boolean, nullable=False, default=True)
+    created_at = Column(String(20), nullable=True)
+    user_id = Column(Integer, ForeignKey("users.id"), nullable=True)
+
+    def __repr__(self):
+        return f"<JobPostingEntity(id={self.id}, title='{self.title}', company='{self.company}', is_active={self.is_active})>"
+
