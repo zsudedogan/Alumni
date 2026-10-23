@@ -6,6 +6,10 @@ venv/
 .venv/
 env/
 
+# Archives
+*.zip
+*.tar.gz
+
 # Databases
 *.db
 *.sqlite3
