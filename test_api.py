@@ -174,3 +174,159 @@ def test_10_job_postings_web_view():
     assert res.status_code == 200
     assert "Career Portal & Job Postings" in res.text
 
+
+@pytest.mark.skipif(client is None, reason="FastAPI or TestClient not installed yet")
+def test_11_direct_applications_crud():
+    # First, ensure we have a job posting to reference
+    job_payload = {
+        "title": "Test App Position",
+        "company": "AppTest Corp",
+        "description": "Position for application testing",
+    }
+    job_res = client.post("/api/job-postings", json=job_payload)
+    assert job_res.status_code == 201
+    job_id = job_res.json()["id"]
+
+    # Direct CREATE application
+    app_payload = {
+        "job_id": job_id,
+        "user_id": 1,
+        "resume_url": "https://linkedin.com/in/testuser",
+        "cover_note": "Very motivated candidate",
+        "status": "Pending"
+    }
+    create_res = client.post("/api/applications", json=app_payload)
+    assert create_res.status_code == 201
+    app_data = create_res.json()
+    app_id = app_data["id"]
+    assert app_data["job_id"] == job_id
+    assert app_data["user_id"] == 1
+    assert app_data["status"] == "Pending"
+
+    # Direct READ ALL
+    list_res = client.get("/api/applications")
+    assert list_res.status_code == 200
+    assert any(a["id"] == app_id for a in list_res.json())
+
+    # Direct READ ALL with filter
+    filter_res = client.get(f"/api/applications?job_id={job_id}")
+    assert filter_res.status_code == 200
+    assert all(a["job_id"] == job_id for a in filter_res.json())
+
+    # Direct READ BY ID (with details)
+    get_res = client.get(f"/api/applications/{app_id}")
+    assert get_res.status_code == 200
+    detail = get_res.json()
+    assert detail["id"] == app_id
+    assert "applicant_name" in detail
+    assert "job_title" in detail
+
+    # Direct PATCH (update status)
+    patch_res = client.patch(f"/api/applications/{app_id}", json={"status": "Reviewed"})
+    assert patch_res.status_code == 200
+    assert patch_res.json()["status"] == "Reviewed"
+
+    # Direct DELETE
+    del_res = client.delete(f"/api/applications/{app_id}")
+    assert del_res.status_code == 200
+    assert client.get(f"/api/applications/{app_id}").status_code == 404
+
+    # Cleanup job posting
+    client.delete(f"/api/job-postings/{job_id}")
+
+
+@pytest.mark.skipif(client is None, reason="FastAPI or TestClient not installed yet")
+def test_12_nested_job_applications():
+    # Create a job posting first
+    job_payload = {
+        "title": "Nested Test Internship",
+        "company": "NestedTest Inc",
+        "description": "Testing nested application routes",
+    }
+    job_res = client.post("/api/job-postings", json=job_payload)
+    assert job_res.status_code == 201
+    job_id = job_res.json()["id"]
+
+    # Nested CREATE: POST /api/job-postings/{job_id}/applications
+    nested_payload = {
+        "user_id": 1,
+        "resume_url": "https://github.com/testuser",
+        "cover_note": "Nested route application test"
+    }
+    create_res = client.post(f"/api/job-postings/{job_id}/applications", json=nested_payload)
+    assert create_res.status_code == 201
+    app_data = create_res.json()
+    app_id = app_data["id"]
+    assert app_data["job_id"] == job_id
+
+    # Nested READ ALL: GET /api/job-postings/{job_id}/applications
+    list_res = client.get(f"/api/job-postings/{job_id}/applications")
+    assert list_res.status_code == 200
+    assert any(a["id"] == app_id for a in list_res.json())
+
+    # Nested READ SINGLE: GET /api/job-postings/{job_id}/applications/{app_id}
+    get_res = client.get(f"/api/job-postings/{job_id}/applications/{app_id}")
+    assert get_res.status_code == 200
+    assert get_res.json()["job_id"] == job_id
+
+    # Nested 404 for non-existent job
+    assert client.get("/api/job-postings/99999/applications").status_code == 404
+
+    # Nested DELETE: DELETE /api/job-postings/{job_id}/applications/{app_id}
+    del_res = client.delete(f"/api/job-postings/{job_id}/applications/{app_id}")
+    assert del_res.status_code == 200
+
+    # Cleanup job posting
+    client.delete(f"/api/job-postings/{job_id}")
+
+
+@pytest.mark.skipif(client is None, reason="FastAPI or TestClient not installed yet")
+def test_13_nested_user_applications():
+    # Create a job posting first
+    job_payload = {
+        "title": "User Nested Test Role",
+        "company": "UserNest Corp",
+        "description": "Testing user nested application routes",
+    }
+    job_res = client.post("/api/job-postings", json=job_payload)
+    assert job_res.status_code == 201
+    job_id = job_res.json()["id"]
+
+    # Nested CREATE: POST /api/users/1/applications
+    user_app_payload = {
+        "job_id": job_id,
+        "cover_note": "User nested application test"
+    }
+    create_res = client.post("/api/users/1/applications", json=user_app_payload)
+    assert create_res.status_code == 201
+    app_data = create_res.json()
+    app_id = app_data["id"]
+    assert app_data["user_id"] == 1
+
+    # Nested READ ALL: GET /api/users/1/applications
+    list_res = client.get("/api/users/1/applications")
+    assert list_res.status_code == 200
+    user_app_ids = [a["id"] for a in list_res.json()]
+    assert app_id in user_app_ids
+
+    # Nested READ SINGLE: GET /api/users/1/applications/{app_id}
+    get_res = client.get(f"/api/users/1/applications/{app_id}")
+    assert get_res.status_code == 200
+    assert get_res.json()["user_id"] == 1
+
+    # Nested 404 for non-existent user
+    assert client.get("/api/users/99999/applications").status_code == 404
+
+    # Nested DELETE: DELETE /api/users/1/applications/{app_id}
+    del_res = client.delete(f"/api/users/1/applications/{app_id}")
+    assert del_res.status_code == 200
+
+    # Cleanup job posting
+    client.delete(f"/api/job-postings/{job_id}")
+
+
+@pytest.mark.skipif(client is None, reason="FastAPI or TestClient not installed yet")
+def test_14_applications_web_view():
+    res = client.get("/applications/")
+    assert res.status_code == 200
+    assert "Student Job Applications" in res.text

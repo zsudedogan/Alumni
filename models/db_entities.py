@@ -19,6 +19,7 @@ class UserEntity(Base):
 
     # Relationships
     job_postings = relationship("JobPostingEntity", back_populates="user", cascade="all, delete-orphan")
+    applications = relationship("ApplicationEntity", back_populates="user", cascade="all, delete-orphan")
 
     def __repr__(self):
         return f"<UserEntity(id={self.id}, name='{self.name}', email='{self.email}')>"
@@ -59,8 +60,30 @@ class JobPostingEntity(Base):
 
     # Relationships
     user = relationship("UserEntity", back_populates="job_postings")
+    applications = relationship("ApplicationEntity", back_populates="job_posting", cascade="all, delete-orphan")
 
     def __repr__(self):
         return f"<JobPostingEntity(id={self.id}, title='{self.title}', company='{self.company}', is_active={self.is_active})>"
+
+
+class ApplicationEntity(Base):
+    """Database ORM mapping for applications table"""
+    __tablename__ = "applications"
+
+    id = Column(Integer, primary_key=True, index=True, autoincrement=True)
+    job_id = Column(Integer, ForeignKey("job_postings.id", ondelete="CASCADE"), nullable=False)
+    user_id = Column(Integer, ForeignKey("users.id", ondelete="CASCADE"), nullable=False)
+    resume_url = Column(String(500), nullable=True)
+    cover_note = Column(Text, nullable=True)
+    status = Column(String(50), nullable=False, default="Pending")
+    created_at = Column(String(20), nullable=True)
+
+    # Relationships
+    user = relationship("UserEntity", back_populates="applications")
+    job_posting = relationship("JobPostingEntity", back_populates="applications")
+
+    def __repr__(self):
+        return f"<ApplicationEntity(id={self.id}, job_id={self.job_id}, user_id={self.user_id}, status='{self.status}')>"
+
 
 

@@ -12,6 +12,13 @@ from controllers.api_job_posting_controller import (
     api_job_posting_router,
     nested_job_posting_router,
 )
+from controllers.application_controller import ApplicationController, application_router
+from controllers.api_application_controller import (
+    ApiApplicationController,
+    api_application_router,
+    nested_job_application_router,
+    nested_user_application_router,
+)
 
 __all__ = [
     # User Controllers
@@ -30,4 +37,12 @@ __all__ = [
     "ApiJobPostingController",
     "api_job_posting_router",
     "nested_job_posting_router",
+    # Application Controllers (Direct & Nested)
+    "ApplicationController",
+    "application_router",
+    "ApiApplicationController",
+    "api_application_router",
+    "nested_job_application_router",
+    "nested_user_application_router",
 ]
+

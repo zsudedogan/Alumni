@@ -17,6 +17,13 @@ from controllers.api_job_posting_controller import (
     ApiJobPostingController,
 )
 from controllers.job_posting_controller import job_posting_router, JobPostingController
+from controllers.api_application_controller import (
+    api_application_router,
+    nested_job_application_router,
+    nested_user_application_router,
+    ApiApplicationController,
+)
+from controllers.application_controller import application_router, ApplicationController
 
 # ---------------------------------------------------------
 # Swagger (OpenAPI) Tag Metadata
@@ -49,6 +56,22 @@ tags_metadata = [
     {
         "name": "JobPostingController (/job-postings)",
         "description": "Job Posting Controller with **View Layer** (HTML Management Interface).",
+    },
+    {
+        "name": "ApiApplicationController (/api/applications)",
+        "description": "**Direct Routes**: Full CRUD operations for Job Applications (/api/applications).",
+    },
+    {
+        "name": "Nested Routes: JobPostings -> Applications (/api/job-postings/{job_id}/applications)",
+        "description": "**Nested Routes**: Submit and list applications under a specific job posting.",
+    },
+    {
+        "name": "Nested Routes: Users -> Applications (/api/users/{user_id}/applications)",
+        "description": "**Nested Routes**: View and manage applications submitted by a specific user.",
+    },
+    {
+        "name": "ApplicationController (/applications)",
+        "description": "Application Controller with **View Layer** (HTML Management Interface).",
     },
     {
         "name": "System",
@@ -110,6 +133,12 @@ app.include_router(announcement_router)
 app.include_router(api_job_posting_router)
 app.include_router(nested_job_posting_router)
 app.include_router(job_posting_router)
+
+# Application Module (Direct & Nested Routes)
+app.include_router(api_application_router)
+app.include_router(nested_job_application_router)
+app.include_router(nested_user_application_router)
+app.include_router(application_router)
 
 
 
@@ -225,12 +254,22 @@ async def main_hub():
                     <a href="/job-postings/" class="btn" style="background: #0284c7;">Open Job Postings View</a>
                 </div>
 
-                <!-- Card 4: Swagger UI -->
+                <!-- Card 4: Applications -->
+                <div class="card">
+                    <div>
+                        <span class="badge">Direct & Nested Routes</span>
+                        <h2>📝 Job Applications</h2>
+                        <p>Track and manage student applications. Nested under job postings and users with full CRUD operations.</p>
+                    </div>
+                    <a href="/applications/" class="btn" style="background: #7c3aed;">Open Applications View</a>
+                </div>
+
+                <!-- Card 5: Swagger UI -->
                 <div class="card">
                     <div>
                         <span class="badge">OpenAPI Documentation</span>
                         <h2>📖 Swagger API Docs</h2>
-                        <p>Interactive OpenAPI documentation for all controllers (Users, Announcements, Direct & Nested Job Postings).</p>
+                        <p>Interactive OpenAPI documentation for all controllers (Users, Announcements, Job Postings, Applications).</p>
                     </div>
                     <a href="/api/swagger" class="btn btn-docs" target="_blank">Launch Swagger UI</a>
                 </div>

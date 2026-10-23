@@ -136,21 +136,29 @@ fastapi-app/
 │
 ├── models/                             # [M] MODEL LAYER (Database & Pydantic DTOs)
 │   ├── __init__.py
-│   ├── db_entities.py                  # SQLAlchemy ORM Entities (UserEntity, AnnEntity)
+│   ├── db_entities.py                  # SQLAlchemy ORM Entities (User, Ann, JobPosting, Application)
 │   ├── user.py                         # UserModel: DB CRUD & Pydantic schemas
-│   └── announcement.py                 # AnnouncementModel: DB CRUD & Pydantic schemas
+│   ├── announcement.py                 # AnnouncementModel: DB CRUD & Pydantic schemas
+│   ├── job_posting.py                  # JobPostingModel: DB CRUD & Pydantic schemas
+│   └── application.py                  # ApplicationModel: DB CRUD & Pydantic schemas
 │
 ├── views/                              # [V] VIEW LAYER (HTML Management Interfaces)
 │   ├── __init__.py
 │   ├── user_view.py                    # HTML View for User Management
-│   └── announcement_view.py            # HTML View for Announcement Management
+│   ├── announcement_view.py            # HTML View for Announcement Management
+│   ├── job_posting_view.py             # HTML View for Career & Job Postings
+│   └── application_view.py             # HTML View for Student Job Applications
 │
 ├── controllers/                        # [C] CONTROLLER LAYER
 │   ├── __init__.py
 │   ├── user_controller.py              # UserController: Handles .../users/ with View Layer
 │   ├── api_user_controller.py          # ApiUserController: Handles .../api/users/ (JSON)
 │   ├── announcement_controller.py      # AnnouncementController: Handles .../announcements/
-│   └── api_announcement_controller.py  # ApiAnnouncementController: Handles .../api/announcements/
+│   ├── api_announcement_controller.py  # ApiAnnouncementController: Handles .../api/announcements/
+│   ├── job_posting_controller.py       # JobPostingController: Handles .../job-postings/
+│   ├── api_job_posting_controller.py   # ApiJobPostingController: Direct & Nested routes
+│   ├── application_controller.py       # ApplicationController: Handles .../applications/
+│   └── api_application_controller.py   # ApiApplicationController: Direct & Nested routes
 │
 ├── main.py                             # Main Application Hub with lifespan DB init
 ├── forgetting_test.py                  # Automated script for The Forgetting Test
@@ -207,6 +215,27 @@ A dedicated, formal **[Data Design Document (ddd.md)](./ddd.md)** is maintained 
   * `POST /api/users/{user_id}/job-postings` ➔ Create a job posting under a specific user (binds `user_id`).
   * `GET /api/users/{user_id}/job-postings/{job_id}` ➔ Retrieve specific user-owned posting.
   * `DELETE /api/users/{user_id}/job-postings/{job_id}` ➔ Delete specific user-owned posting.
+
+### 4. 📝 Application Module (Direct & Nested Routes - Step 5)
+* **Web View Controller (`.../applications/`):** [`controllers/application_controller.py`](./controllers/application_controller.py)
+  * `GET /applications/` ➔ Interactive Student Job Application Management Interface.
+* **Direct REST API Controller (`.../api/applications/`):** [`controllers/api_application_controller.py`](./controllers/api_application_controller.py)
+  * `GET /api/applications` ➔ List all applications (supports `job_id`, `user_id`, `status` filters).
+  * `GET /api/applications/{id}` ➔ Retrieve application with resolved applicant & job posting details.
+  * `POST /api/applications` ➔ Direct application submission.
+  * `PUT /api/applications/{id}` ➔ Full update.
+  * `PATCH /api/applications/{id}` ➔ Partial update (e.g. status transition: Pending -> Reviewed -> Accepted).
+  * `DELETE /api/applications/{id}` ➔ Delete application.
+* **Nested REST API Routes (JobPostings -> Applications):**
+  * `GET /api/job-postings/{job_id}/applications` ➔ List all applications submitted for a specific job opening.
+  * `POST /api/job-postings/{job_id}/applications` ➔ Submit an application directly to a target job opening.
+  * `GET /api/job-postings/{job_id}/applications/{id}` ➔ View specific application under a job posting.
+  * `DELETE /api/job-postings/{job_id}/applications/{id}` ➔ Withdraw/delete application under a job posting.
+* **Nested REST API Routes (Users -> Applications):**
+  * `GET /api/users/{user_id}/applications` ➔ List all applications submitted by a specific student/user.
+  * `POST /api/users/{user_id}/applications` ➔ Submit an application as a specific student/user.
+  * `GET /api/users/{user_id}/applications/{id}` ➔ View user's specific application.
+  * `DELETE /api/users/{user_id}/applications/{id}` ➔ Withdraw user's application.
 
 ---
 
@@ -271,5 +300,6 @@ Open your browser to test each component:
 * 👥 **User Management Interface (View Layer):** [http://127.0.0.1:8000/users/](http://127.0.0.1:8000/users/)
 * 📢 **Announcement Management Interface:** [http://127.0.0.1:8000/announcements/](http://127.0.0.1:8000/announcements/)
 * 💼 **Job Postings Management Interface:** [http://127.0.0.1:8000/job-postings/](http://127.0.0.1:8000/job-postings/)
+* 📝 **Applications Management Interface:** [http://127.0.0.1:8000/applications/](http://127.0.0.1:8000/applications/)
 * 📖 **Swagger UI Documentation:** [http://127.0.0.1:8000/api/swagger](http://127.0.0.1:8000/api/swagger)
 
