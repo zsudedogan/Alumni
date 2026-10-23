@@ -1,13 +1,15 @@
 """
 ApplicationController - MVC Architecture
 Controller handling Application web routes (/applications and /applications/) with View Layer.
-Provides HTML management interface, listing, and web form submissions.
+Provides HTML management interface, listing, interactive status updating, and web form submissions.
 """
 
 from typing import Optional
-from fastapi import APIRouter, Form, status
+from fastapi import APIRouter, Form, Query, status
 from fastapi.responses import HTMLResponse, RedirectResponse
 from models.application import ApplicationCreate, ApplicationModel
+from models.job_posting import JobPostingModel
+from models.user import UserModel
 from views.application_view import render_application_management_page
 
 TAG = "ApplicationController (/applications)"
@@ -19,10 +21,17 @@ class ApplicationController:
     """Standard Application Web Controller connecting Model to View Layer"""
 
     @staticmethod
-    def render_interface() -> HTMLResponse:
-        """CRUD (Read - R): Render HTML View Layer management page"""
+    def render_interface(job_id: Optional[int] = None) -> HTMLResponse:
+        """CRUD (Read - R): Render HTML View Layer management page with populated jobs & users"""
         apps = ApplicationModel.get_all_with_details()
-        html = render_application_management_page(apps)
+        jobs = JobPostingModel.get_all()
+        users = UserModel.get_all()
+        html = render_application_management_page(
+            applications=apps,
+            available_jobs=jobs,
+            available_users=users,
+            preselected_job_id=job_id,
+        )
         return HTMLResponse(content=html)
 
     @staticmethod
@@ -50,9 +59,9 @@ class ApplicationController:
 # ---------------------------------------------------------
 @application_router.get("", response_class=HTMLResponse, summary="Open Applications Management Interface (View Layer)")
 @application_router.get("/", response_class=HTMLResponse, include_in_schema=False)
-async def view_applications():
+async def view_applications(job_id: Optional[int] = Query(None, description="Pre-select job in application form")):
     """Renders the HTML interface for managing job applications"""
-    return ApplicationController.render_interface()
+    return ApplicationController.render_interface(job_id=job_id)
 
 
 @application_router.post("", response_class=RedirectResponse, summary="Submit application via Web Form (View Layer)")
