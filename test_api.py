@@ -330,3 +330,87 @@ def test_14_applications_web_view():
     res = client.get("/applications/")
     assert res.status_code == 200
     assert "Student Job Applications" in res.text
+
+
+@pytest.mark.skipif(client is None, reason="FastAPI or TestClient not installed yet")
+def test_15_job_posting_title_max_120_validation():
+    """Verify that title exceeding 120 characters is rejected with 400 validation failed"""
+    long_title = "A" * 121
+    payload = {
+        "title": long_title,
+        "company": "Validation Test Co"
+    }
+    res = client.post("/api/job-postings", json=payload)
+    assert res.status_code == 400
+    data = res.json()
+    assert data["error"] == "validation failed"
+    assert "detail" in data
+
+
+@pytest.mark.skipif(client is None, reason="FastAPI or TestClient not installed yet")
+def test_16_job_posting_optional_city_and_description():
+    """Verify that JobPosting succeeds with city and optional description"""
+    payload = {
+        "title": "Backend Intern",
+        "company": "FastAPI Labs",
+        "city": "Izmir"
+    }
+    res = client.post("/api/job-postings", json=payload)
+    assert res.status_code == 201
+    job = res.json()
+    assert job["title"] == "Backend Intern"
+    assert job["company"] == "FastAPI Labs"
+    assert job["city"] == "Izmir"
+    assert job["description"] is None
+
+    # Cleanup
+    client.delete(f"/api/job-postings/{job['id']}")
+
+
+@pytest.mark.skipif(client is None, reason="FastAPI or TestClient not installed yet")
+def test_17_malformed_json_body_check():
+    """Verify that malformed JSON body returns HTTP 400 with 'validation failed'"""
+    res = client.post(
+        "/api/users",
+        content='{"name": "Broken JSON", "age": }',
+        headers={"Content-Type": "application/json"}
+    )
+    assert res.status_code == 400
+    data = res.json()
+    assert data["error"] == "validation failed"
+    assert "malformed or invalid json" in data["reason"].lower()
+
+
+@pytest.mark.skipif(client is None, reason="FastAPI or TestClient not installed yet")
+def test_18_404_guardian_json_and_html_with_reason():
+    """Verify 404 Guardian returns structured reason in JSON and HTML"""
+    # 1. API 404 JSON
+    api_res = client.get("/api/non-existent-endpoint")
+    assert api_res.status_code == 404
+    json_data = api_res.json()
+    assert json_data["error"] == "Not Found"
+    assert "reason" in json_data
+    assert json_data["path"] == "/api/non-existent-endpoint"
+
+    # 2. Web 404 HTML
+    web_res = client.get("/non-existent-web-page", headers={"Accept": "text/html"})
+    assert web_res.status_code == 404
+    assert "404 GUARDIAN" in web_res.text
+    assert "Reason:" in web_res.text
+
+
+@pytest.mark.skipif(client is None, reason="FastAPI or TestClient not installed yet")
+def test_19_error_logging_mechanism():
+    """Verify that errors are recorded in logs/error.logs"""
+    import os
+    from middlewares.logger import ERROR_LOG_FILE
+
+    # Trigger a 404 error
+    client.get("/api/trigger-log-test-404")
+
+    # Assert error log file exists and has content
+    assert os.path.exists(ERROR_LOG_FILE)
+    with open(ERROR_LOG_FILE, "r", encoding="utf-8") as f:
+        log_content = f.read()
+    assert "/api/trigger-log-test-404" in log_content
+

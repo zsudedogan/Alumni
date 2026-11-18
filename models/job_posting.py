@@ -6,7 +6,7 @@ Derived from migration schema definitions and Data Design Document (ddd.md).
 
 from typing import List, Optional
 from datetime import datetime
-from pydantic import BaseModel, ConfigDict
+from pydantic import BaseModel, ConfigDict, Field
 from database import SessionLocal
 from models.db_entities import JobPostingEntity, UserEntity
 
@@ -16,11 +16,12 @@ from models.db_entities import JobPostingEntity, UserEntity
 # ---------------------------------------------------------
 class JobPostingBase(BaseModel):
     """Base schema with shared JobPosting attributes"""
-    title: str
-    company: str
-    location: Optional[str] = "Remote"
+    title: str = Field(..., min_length=1, max_length=120, description="Job title (Required, max 120 chars)")
+    company: str = Field(..., min_length=1, description="Company name (Required)")
+    city: Optional[str] = Field(None, description="Job city (Optional)")
+    location: Optional[str] = Field("Remote", description="Job location (Optional, Default: Remote)")
     job_type: Optional[str] = "Full-time"
-    description: str
+    description: Optional[str] = Field(None, description="Detailed job description (Optional)")
     requirements: Optional[str] = None
     salary_range: Optional[str] = None
     application_deadline: Optional[str] = None
@@ -40,8 +41,9 @@ class JobPostingUpdate(JobPostingBase):
 
 class JobPostingPatch(BaseModel):
     """Schema for partially updating a job posting (PATCH /api/job-postings/{id})"""
-    title: Optional[str] = None
-    company: Optional[str] = None
+    title: Optional[str] = Field(None, min_length=1, max_length=120)
+    company: Optional[str] = Field(None, min_length=1)
+    city: Optional[str] = None
     location: Optional[str] = None
     job_type: Optional[str] = None
     description: Optional[str] = None
@@ -114,11 +116,14 @@ class JobPostingModel:
     @classmethod
     def _entity_to_pydantic(cls, entity: JobPostingEntity) -> JobPosting:
         """Converts an ORM entity to a Pydantic JobPosting schema"""
+        city_val = getattr(entity, "city", None)
+        loc_val = entity.location or city_val or "Remote"
         return JobPosting(
             id=entity.id,
             title=entity.title,
             company=entity.company,
-            location=entity.location,
+            city=city_val or loc_val,
+            location=loc_val,
             job_type=entity.job_type,
             description=entity.description,
             requirements=entity.requirements,
@@ -144,6 +149,10 @@ class JobPostingModel:
     def create(cls, data: JobPostingCreate) -> JobPosting:
         """CRUD: Create a new job posting in database"""
         payload = data.model_dump()
+        if not payload.get("location") and payload.get("city"):
+            payload["location"] = payload["city"]
+        elif not payload.get("city") and payload.get("location"):
+            payload["city"] = payload["location"]
         if not payload.get("created_at"):
             payload["created_at"] = datetime.now().strftime("%Y-%m-%d")
         if "is_active" not in payload or payload["is_active"] is None:

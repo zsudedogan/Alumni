@@ -87,10 +87,28 @@ from contextlib import asynccontextmanager
 from database import engine, Base
 import models.db_entities
 
+from fastapi.exceptions import RequestValidationError
+from starlette.exceptions import HTTPException as StarletteHTTPException
+from sqlalchemy import text
+from middlewares import (
+    BodyCheckMiddleware,
+    LoggerMiddleware,
+    Guardian5xxMiddleware,
+    validation_exception_handler,
+    custom_starlette_http_exception_handler,
+)
+
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     # Startup: ensure tables exist in database
     Base.metadata.create_all(bind=engine)
+    # Ensure optional columns like city exist in sqlite if created earlier
+    try:
+        with engine.connect() as conn:
+            conn.execute(text("ALTER TABLE job_postings ADD COLUMN city VARCHAR(100)"))
+            conn.commit()
+    except Exception:
+        pass
     yield
 
 # Initialize FastAPI application with custom Swagger UI at /api/swagger
@@ -102,14 +120,29 @@ Complete implementation of:
 1. **User Module**: `UserController` (`/users/` with View Layer) & `ApiUserController` (`/api/users/`)
 2. **Announcement Module (Homework)**: `AnnouncementController` (`/announcements/` with View Layer) & `ApiAnnouncementController` (`/api/announcements/`)
 3. **Database CRUD Persistence**: Connected to PostgreSQL/SQLite via SQLAlchemy & Alembic.
+4. **Middleware Pipeline**: Request -> Logger -> Read JSON (Body Check) -> Route / Action.
+5. **Guardians**: 404 with reason and 5xx guardian error catcher.
     """,
-    version="4.0.0",
+    version="4.1.0",
     docs_url="/api/swagger",      # Swagger UI endpoint requested on whiteboard
     redoc_url="/api/redoc",
     openapi_url="/api/openapi.json",
     openapi_tags=tags_metadata,
     lifespan=lifespan
 )
+
+# ---------------------------------------------------------
+# Register Middlewares (Pipeline: 5xx Guardian -> Logger -> BodyCheck -> Route)
+# ---------------------------------------------------------
+app.add_middleware(BodyCheckMiddleware)
+app.add_middleware(LoggerMiddleware)
+app.add_middleware(Guardian5xxMiddleware)
+
+# ---------------------------------------------------------
+# Register Exception Handlers (400 Validation & 404 Guardian with Reason)
+# ---------------------------------------------------------
+app.add_exception_handler(RequestValidationError, validation_exception_handler)
+app.add_exception_handler(StarletteHTTPException, custom_starlette_http_exception_handler)
 
 # Redirect standard /docs to /api/swagger
 @app.get("/docs", include_in_schema=False)

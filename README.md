@@ -134,12 +134,22 @@ fastapi-app/
 │   ├── user_factory.py                 # User data generator
 │   └── announcement_factory.py         # Announcement data generator
 │
+├── middlewares/                        # 🛡️ MIDDLEWARE PIPELINE & GUARDIANS
+│   ├── __init__.py                     # Module exports
+│   ├── pipeline.py                     # BodyCheckMiddleware, LoggerMiddleware, Guardian5xxMiddleware
+│   ├── logger.py                       # Logger logic & logs/error.logs file persistence
+│   └── handlers.py                     # 400 Validation Handler & 404/500 Reason Guardians (JSON & HTML)
+│
+├── logs/                               # 📝 APPLICATION LOGS
+│   ├── error.logs                      # High-priority error and exception logs
+│   └── requests.log                    # Access & request lifecycle audit logs
+│
 ├── models/                             # [M] MODEL LAYER (Database & Pydantic DTOs)
 │   ├── __init__.py
 │   ├── db_entities.py                  # SQLAlchemy ORM Entities (User, Ann, JobPosting, Application)
 │   ├── user.py                         # UserModel: DB CRUD & Pydantic schemas
 │   ├── announcement.py                 # AnnouncementModel: DB CRUD & Pydantic schemas
-│   ├── job_posting.py                  # JobPostingModel: DB CRUD & Pydantic schemas
+│   ├── job_posting.py                  # JobPostingModel: DB CRUD & Pydantic schemas (Max 120 title, optional city & desc)
 │   └── application.py                  # ApplicationModel: DB CRUD & Pydantic schemas
 │
 ├── views/                              # [V] VIEW LAYER (HTML Management Interfaces)
@@ -160,18 +170,106 @@ fastapi-app/
 │   ├── application_controller.py       # ApplicationController: Handles .../applications/
 │   └── api_application_controller.py   # ApiApplicationController: Direct & Nested routes
 │
-├── main.py                             # Main Application Hub with lifespan DB init
+├── main.py                             # Main Application Hub with lifespan DB init & middleware pipeline
 ├── forgetting_test.py                  # Automated script for The Forgetting Test
 ├── postman_collection.json             # Postman Test Suite
 ├── requirements.txt                    # Project Dependencies (SQLAlchemy, Alembic, Faker)
-├── test_api.py                         # Automated Pytest Suite
-├── ddd.md                              # Data Design Document
+├── test_api.py                         # Automated Pytest Suite (21 unit tests)
+├── ddd.md                              # Data Design Document (Updated rules)
 └── README.md                           # Documentation & Architecture Guide
 ```
 
 ---
 
-## 📊 Data Design Documentation (DDD)
+## 🛡️ Middleware Pipeline, Logger & Guardians Architecture
+
+The application implements a strict request-response lifecycle pipeline:
+
+```text
+  [ Incoming HTTP Request ]
+              │
+              ▼
+  ┌─────────────────────────────────────────────────────────────┐
+  │  1. Guardian 5xx Middleware (Outer Safety Net)             │
+  │     - Wraps entire execution in try-except                  │
+  │     - Intercepts unhandled crashes & logs to logs/error.logs│
+  │     - Returns safe, user-friendly 500 response (JSON / HTML)│
+  └───────────────────────────┬─────────────────────────────────┘
+                              │
+                              ▼
+  ┌─────────────────────────────────────────────────────────────┐
+  │  2. Logger Middleware                                       │
+  │     - Records start timestamp                               │
+  │     - Passes request down the pipeline                      │
+  │     - Calculates elapsed duration                           │
+  │     - Terminal Output: [time] [method] [route] [res.type] [duration]│
+  │       (e.g., "10:20:30 Post /users/1/json 201 18ms")        │
+  │     - Persists access logs & errors to logs/error.logs      │
+  └───────────────────────────┬─────────────────────────────────┘
+                              │
+                              ▼
+  ┌─────────────────────────────────────────────────────────────┐
+  │  3. Read JSON & Body Check Middleware                       │
+  │     - Intercepts POST, PUT, PATCH requests                  │
+  │     - Validates JSON parseability before reaching routes    │
+  │     - Invalid/malformed syntax -> HTTP 400 "validation failed"│
+  └───────────────────────────┬─────────────────────────────────┘
+                              │
+                              ▼
+  ┌─────────────────────────────────────────────────────────────┐
+  │  4. Route Handler / Controller Processing                   │
+  │     - Pydantic Schema Validation (FastAPI)                  │
+  │     - Validation errors -> HTTP 400 "validation failed"     │
+  │     - Business logic & Database CRUD execution              │
+  └───────────────────────────┬─────────────────────────────────┘
+                              │
+                              ▼
+  ┌─────────────────────────────────────────────────────────────┐
+  │  5. 404 Not Found Guardian                                  │
+  │     - Catches unmapped routes & missing entities with reason│
+  │     - API (/api/*) -> JSON { error, status_code, reason, path }│
+  │     - Web (text/html) -> Styled 404 Guardian HTML Page      │
+  └─────────────────────────────────────────────────────────────┘
+```
+
+### 1. Terminal Logger Output Format
+Every request is printed to the terminal conforming to:
+```text
+[time] [method] [route] [res.type] [duration]
+```
+*Live Example:*
+```text
+10:20:30 Post /users/1/json 201 18ms
+10:20:35 Get /api/job-postings 200 4ms
+10:20:40 Post /api/job-postings 400 2ms
+```
+
+### 2. Log File Persistence (`logs/error.logs`)
+All failed requests (status $\ge 400$), schema validation errors, and server exceptions are automatically saved with timestamp, HTTP method, route, and diagnostic trace into `logs/error.logs`.
+
+### 3. Body Check & Schema Validation (HTTP 400)
+Requests violating data constraints (e.g. malformed JSON or `JobPosting` title exceeding 120 characters) return HTTP 400 Bad Request with:
+```json
+{
+  "error": "validation failed",
+  "reason": "Request body validation failed against schema rules",
+  "detail": [...],
+  "status_code": 400
+}
+```
+
+### 4. 404 Guardian with Reason
+When a client requests a missing resource or unmapped URL:
+* **API Requests:** Returns JSON specifying the `reason`:
+  ```json
+  {
+    "error": "Not Found",
+    "status_code": 404,
+    "reason": "The requested URL route or entity does not exist on this server.",
+    "path": "/api/unknown-endpoint"
+  }
+  ```
+* **Browser Requests:** Renders a clean 404 HTML error page displaying the path, reason, and navigation links.
 
 A dedicated, formal **[Data Design Document (ddd.md)](./ddd.md)** is maintained for this project to specify data contracts, entity relationships, validation schemas, and lifecycle constraints.
 

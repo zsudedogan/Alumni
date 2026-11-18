@@ -45,11 +45,12 @@ class JobPostingEntity(Base):
     __tablename__ = "job_postings"
 
     id = Column(Integer, primary_key=True, index=True, autoincrement=True)
-    title = Column(String(255), nullable=False)
+    title = Column(String(120), nullable=False)
     company = Column(String(255), nullable=False)
+    city = Column(String(100), nullable=True)
     location = Column(String(255), nullable=True, default="Remote")
     job_type = Column(String(50), nullable=True, default="Full-time")
-    description = Column(Text, nullable=False)
+    description = Column(Text, nullable=True)
     requirements = Column(Text, nullable=True)
     salary_range = Column(String(100), nullable=True)
     application_deadline = Column(String(20), nullable=True)

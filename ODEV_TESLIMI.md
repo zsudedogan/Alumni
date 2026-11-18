@@ -16,6 +16,10 @@
 | **Step 5** | Repeat Steps 1–4 for `applications` table | ✅ Completed | `ddd.md`, `alembic/versions/1fe5ae6806fb_create_applications_table.py`, `models/application.py`, `controllers/api_application_controller.py` |
 | **Step 6** | Seed `job_postings` table using Faker factory | ✅ Completed | `factories/job_posting_factory.py`, `seed.py` |
 | **Step 7** | Prepare Basic UIs for Job Postings and Applications | ✅ Completed | `views/job_posting_view.py` (`/job-postings/`), `views/application_view.py` (`/applications/`) |
+| **Step 8** | Update `JobPosting` DDD rules (`title` max 120, `company`, optional `city` & `description`) | ✅ Completed | `ddd.md`, `models/job_posting.py`, `models/db_entities.py` |
+| **Step 9** | Implement Logger Middleware & Terminal Output Format | ✅ Completed | `middlewares/pipeline.py`, `middlewares/logger.py` (`logs/error.logs`) |
+| **Step 10** | Body Check & 400 Validation Error Handling | ✅ Completed | `middlewares/pipeline.py` (`BodyCheckMiddleware`), `middlewares/handlers.py` |
+| **Step 11** | Generic 404 with Reason & 5xx Guardian Middlewares | ✅ Completed | `middlewares/handlers.py` (JSON & HTML), `middlewares/pipeline.py` |
 
 ---
 
@@ -112,12 +116,57 @@
 
 ---
 
+### Step 8: Update JobPosting DDD Rules
+- **Files:** `ddd.md`, `models/job_posting.py`, `models/db_entities.py`
+- **Actions:**
+  - `title`: strictly enforced `max_length=120`, `min_length=1`, trimmed.
+  - `company`: required employer name.
+  - `city`: added as optional field (`Optional[str] = None`) with fallback mapping to `location`.
+  - `description`: updated to optional (`Optional[str] = None`, `nullable=True`).
+
+---
+
+### Step 9: Logger Middleware & Request Pipeline
+- **Files:** `middlewares/pipeline.py`, `middlewares/logger.py`
+- **Actions:**
+  - Implemented terminal request logger following format:
+    `[time] [method] [route] [res.type] [duration]`
+    *(Example: `10:20:30 Post /users/1/json 201 18ms`)*
+  - Logging mechanism persisting all failed requests and exceptions into `logs/error.logs`.
+
+---
+
+### Step 10: Body Check & 400 Validation Error Handling
+- **Files:** `middlewares/pipeline.py` (`BodyCheckMiddleware`), `middlewares/handlers.py`
+- **Actions:**
+  - Intercepts POST/PUT/PATCH bodies, catches malformed/invalid JSON syntax before route execution, and returns HTTP 400 with `"error": "validation failed"`.
+  - Registered `RequestValidationError` handler returning structured 400 Bad Request error payload with field validation details.
+
+---
+
+### Step 11: 404 with Reason & 5xx Guardian Middlewares
+- **Files:** `middlewares/handlers.py`, `middlewares/pipeline.py`
+- **Actions:**
+  - Generic 404 Guardian returns structured JSON for `/api/*` and custom styled HTML page for browser views, explicitly displaying `reason` and requested `path`.
+  - `Guardian5xxMiddleware` wraps the application, catches unexpected crashes, records stack traces to `logs/error.logs`, and serves a clean 500 response.
+
+---
+
 ### 🧪 Automated Test Verification
-- All 16 automated tests passed:
+- All 21 automated tests passed:
   ```bash
   pytest -v
   ```
-- Tests covering all requested steps:
+- Tests covering all classroom steps:
+  - `test_1_health_check`: PASSED
+  - `test_3_post_create_user`: PASSED
+  - `test_4_get_list_all_users`: PASSED
+  - `test_4b_get_user_by_id`: PASSED
+  - `test_4b_get_user_by_id_not_found`: PASSED
+  - `test_5_put_update_user`: PASSED
+  - `test_5_patch_update_user`: PASSED
+  - `test_6_delete_user`: PASSED
+  - `test_7_swagger_endpoint`: PASSED
   - `test_8_direct_job_postings_crud`: PASSED
   - `test_9_nested_user_job_postings`: PASSED
   - `test_10_job_postings_web_view`: PASSED
@@ -125,3 +174,8 @@
   - `test_12_nested_job_applications`: PASSED
   - `test_13_nested_user_applications`: PASSED
   - `test_14_applications_web_view`: PASSED
+  - `test_15_job_posting_title_max_120_validation`: PASSED
+  - `test_16_job_posting_optional_city_and_description`: PASSED
+  - `test_17_malformed_json_body_check`: PASSED
+  - `test_18_404_guardian_json_and_html_with_reason`: PASSED
+  - `test_19_error_logging_mechanism`: PASSED

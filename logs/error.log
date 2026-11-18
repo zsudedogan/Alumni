@@ -1,0 +1,466 @@
+[2026-11-18 09:46:56] [GET /api/users/99999] Status: 404
+Detail: 404 Not Found: User with ID 99999 was not found
+------------------------------------------------------------
+[2026-11-18 09:46:56] [GET /api/users/99999] Status: 404
+Detail: HTTP 404 on GET /api/users/99999 (Duration: 1ms)
+------------------------------------------------------------
+[2026-11-18 09:46:56] [GET /api/users/37] Status: 404
+Detail: 404 Not Found: User with ID 37 was not found
+------------------------------------------------------------
+[2026-11-18 09:46:56] [GET /api/users/37] Status: 404
+Detail: HTTP 404 on GET /api/users/37 (Duration: 1ms)
+------------------------------------------------------------
+[2026-11-18 09:46:56] [GET /api/job-postings/11] Status: 404
+Detail: 404 Not Found: Job posting with ID 11 was not found
+------------------------------------------------------------
+[2026-11-18 09:46:56] [GET /api/job-postings/11] Status: 404
+Detail: HTTP 404 on GET /api/job-postings/11 (Duration: 1ms)
+------------------------------------------------------------
+[2026-11-18 09:46:56] [GET /api/users/9999/job-postings] Status: 404
+Detail: 404 Not Found: User with ID 9999 was not found
+------------------------------------------------------------
+[2026-11-18 09:46:56] [GET /api/users/9999/job-postings] Status: 404
+Detail: HTTP 404 on GET /api/users/9999/job-postings (Duration: 1ms)
+------------------------------------------------------------
+[2026-11-18 09:46:56] [GET /api/applications/3] Status: 404
+Detail: 404 Not Found: Application with ID 3 was not found
+------------------------------------------------------------
+[2026-11-18 09:46:56] [GET /api/applications/3] Status: 404
+Detail: HTTP 404 on GET /api/applications/3 (Duration: 1ms)
+------------------------------------------------------------
+[2026-11-18 09:46:56] [GET /api/job-postings/99999/applications] Status: 404
+Detail: 404 Not Found: Job posting with ID 99999 was not found
+------------------------------------------------------------
+[2026-11-18 09:46:56] [GET /api/job-postings/99999/applications] Status: 404
+Detail: HTTP 404 on GET /api/job-postings/99999/applications (Duration: 1ms)
+------------------------------------------------------------
+[2026-11-18 09:46:57] [GET /api/users/99999/applications] Status: 404
+Detail: 404 Not Found: User with ID 99999 was not found
+------------------------------------------------------------
+[2026-11-18 09:46:57] [GET /api/users/99999/applications] Status: 404
+Detail: HTTP 404 on GET /api/users/99999/applications (Duration: 1ms)
+------------------------------------------------------------
+[2026-11-18 09:47:16] [GET /api/users/99999] Status: 404
+Detail: 404 Not Found: User with ID 99999 was not found
+------------------------------------------------------------
+[2026-11-18 09:47:16] [GET /api/users/99999] Status: 404
+Detail: HTTP 404 on GET /api/users/99999 (Duration: 1ms)
+------------------------------------------------------------
+[2026-11-18 09:47:16] [GET /api/users/38] Status: 404
+Detail: 404 Not Found: User with ID 38 was not found
+------------------------------------------------------------
+[2026-11-18 09:47:16] [GET /api/users/38] Status: 404
+Detail: HTTP 404 on GET /api/users/38 (Duration: 3ms)
+------------------------------------------------------------
+[2026-11-18 09:47:16] [GET /api/job-postings/11] Status: 404
+Detail: 404 Not Found: Job posting with ID 11 was not found
+------------------------------------------------------------
+[2026-11-18 09:47:16] [GET /api/job-postings/11] Status: 404
+Detail: HTTP 404 on GET /api/job-postings/11 (Duration: 1ms)
+------------------------------------------------------------
+[2026-11-18 09:47:16] [GET /api/users/9999/job-postings] Status: 404
+Detail: 404 Not Found: User with ID 9999 was not found
+------------------------------------------------------------
+[2026-11-18 09:47:16] [GET /api/users/9999/job-postings] Status: 404
+Detail: HTTP 404 on GET /api/users/9999/job-postings (Duration: 1ms)
+------------------------------------------------------------
+[2026-11-18 09:47:16] [GET /api/applications/3] Status: 404
+Detail: 404 Not Found: Application with ID 3 was not found
+------------------------------------------------------------
+[2026-11-18 09:47:16] [GET /api/applications/3] Status: 404
+Detail: HTTP 404 on GET /api/applications/3 (Duration: 1ms)
+------------------------------------------------------------
+[2026-11-18 09:47:16] [GET /api/job-postings/99999/applications] Status: 404
+Detail: 404 Not Found: Job posting with ID 99999 was not found
+------------------------------------------------------------
+[2026-11-18 09:47:16] [GET /api/job-postings/99999/applications] Status: 404
+Detail: HTTP 404 on GET /api/job-postings/99999/applications (Duration: 1ms)
+------------------------------------------------------------
+[2026-11-18 09:47:16] [GET /api/users/99999/applications] Status: 404
+Detail: 404 Not Found: User with ID 99999 was not found
+------------------------------------------------------------
+[2026-11-18 09:47:16] [GET /api/users/99999/applications] Status: 404
+Detail: HTTP 404 on GET /api/users/99999/applications (Duration: 1ms)
+------------------------------------------------------------
+[2026-11-18 09:47:16] [POST /api/job-postings] Status: 400
+Detail: Validation failed on POST /api/job-postings: [{'type': 'string_too_long', 'loc': ('body', 'title'), 'msg': 'String should have at most 120 characters', 'input': 'AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA', 'ctx': {'max_length': 120}}]
+------------------------------------------------------------
+[2026-11-18 09:47:16] [POST /api/job-postings] Status: 400
+Detail: HTTP 400 on POST /api/job-postings (Duration: 1ms)
+------------------------------------------------------------
+[2026-11-18 09:47:16] [POST /api/job-postings] Status: 500
+Detail: Unhandled Exception: (sqlite3.IntegrityError) NOT NULL constraint failed: job_postings.description
+[SQL: INSERT INTO job_postings (title, company, city, location, job_type, description, requirements, salary_range, application_deadline, contact_email, is_active, created_at, user_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)]
+[parameters: ('Backend Intern', 'FastAPI Labs', 'Izmir', 'Remote', 'Full-time', None, None, None, None, None, 1, '2026-11-18', None)]
+(Background on this error at: https://sqlalche.me/e/21/gkpj)
+Traceback (most recent call last):
+  File "/Users/zsudedogan/.gemini/antigravity/scratch/fastapi-app/venv/lib/python3.13/site-packages/sqlalchemy/engine/base.py", line 1946, in _exec_single_context
+    self.dialect.do_execute(
+    ~~~~~~~~~~~~~~~~~~~~~~~^
+        cursor, str_statement, effective_parameters, context
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "/Users/zsudedogan/.gemini/antigravity/scratch/fastapi-app/venv/lib/python3.13/site-packages/sqlalchemy/engine/default.py", line 1192, in do_execute
+    cursor.execute(statement, parameters)
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+sqlite3.IntegrityError: NOT NULL constraint failed: job_postings.description
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/Users/zsudedogan/.gemini/antigravity/scratch/fastapi-app/middlewares/pipeline.py", line 104, in dispatch
+    return await call_next(request)
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/zsudedogan/.gemini/antigravity/scratch/fastapi-app/venv/lib/python3.13/site-packages/starlette/middleware/base.py", line 173, in call_next
+    raise app_exc from app_exc.__cause__ or app_exc.__context__
+  File "/Users/zsudedogan/.gemini/antigravity/scratch/fastapi-app/venv/lib/python3.13/site-packages/starlette/middleware/base.py", line 149, in coro
+    await self.app(scope, receive_or_disconnect, send_no_error)
+  File "/Users/zsudedogan/.gemini/antigravity/scratch/fastapi-app/venv/lib/python3.13/site-packages/starlette/middleware/base.py", line 197, in __call__
+    response = await self.dispatch_func(request, call_next)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/zsudedogan/.gemini/antigravity/scratch/fastapi-app/middlewares/pipeline.py", line 75, in dispatch
+    response = await call_next(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/zsudedogan/.gemini/antigravity/scratch/fastapi-app/venv/lib/python3.13/site-packages/starlette/middleware/base.py", line 173, in call_next
+    raise app_exc from app_exc.__cause__ or app_exc.__context__
+  File "/Users/zsudedogan/.gemini/antigravity/scratch/fastapi-app/venv/lib/python3.13/site-packages/starlette/middleware/base.py", line 149, in coro
+    await self.app(scope, receive_or_disconnect, send_no_error)
+  File "/Users/zsudedogan/.gemini/antigravity/scratch/fastapi-app/venv/lib/python3.13/site-packages/starlette/middleware/base.py", line 197, in __call__
+    response = await self.dispatch_func(request, call_next)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/zsudedogan/.gemini/antigravity/scratch/fastapi-app/middlewares/pipeline.py", line 59, in dispatch
+    return await call_next(request)
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/zsudedogan/.gemini/antigravity/scratch/fastapi-app/venv/lib/python3.13/site-packages/starlette/middleware/base.py", line 173, in call_next
+    raise app_exc from app_exc.__cause__ or app_exc.__context__
+  File "/Users/zsudedogan/.gemini/antigravity/scratch/fastapi-app/venv/lib/python3.13/site-packages/starlette/middleware/base.py", line 149, in coro
+    await self.app(scope, receive_or_disconnect, send_no_error)
+  File "/Users/zsudedogan/.gemini/antigravity/scratch/fastapi-app/venv/lib/python3.13/site-packages/starlette/middleware/exceptions.py", line 63, in __call__
+    await wrap_app_handling_exceptions(self.app, conn)(scope, receive, send)
+  File "/Users/zsudedogan/.gemini/antigravity/scratch/fastapi-app/venv/lib/python3.13/site-packages/starlette/_exception_handler.py", line 53, in wrapped_app
+    raise exc
+  File "/Users/zsudedogan/.gemini/antigravity/scratch/fastapi-app/venv/lib/python3.13/site-packages/starlette/_exception_handler.py", line 42, in wrapped_app
+    await app(scope, receive, sender)
+  File "/Users/zsudedogan/.gemini/antigravity/scratch/fastapi-app/venv/lib/python3.13/site-packages/fastapi/middleware/asyncexitstack.py", line 18, in __call__
+    await self.app(scope, receive, send)
+  File "/Users/zsudedogan/.gemini/antigravity/scratch/fastapi-app/venv/lib/python3.13/site-packages/starlette/routing.py", line 676, in __call__
+    await self.middleware_stack(scope, receive, send)
+  File "/Users/zsudedogan/.gemini/antigravity/scratch/fastapi-app/venv/lib/python3.13/site-packages/fastapi/routing.py", line 2786, in app
+    await route.handle(scope, receive, send)
+  File "/Users/zsudedogan/.gemini/antigravity/scratch/fastapi-app/venv/lib/python3.13/site-packages/fastapi/routing.py", line 1817, in handle
+    await self.original_router.handle(scope, receive, send)
+  File "/Users/zsudedogan/.gemini/antigravity/scratch/fastapi-app/venv/lib/python3.13/site-packages/fastapi/routing.py", line 2869, in handle
+    await included_router._handle_selected(scope, receive, send)
+  File "/Users/zsudedogan/.gemini/antigravity/scratch/fastapi-app/venv/lib/python3.13/site-packages/fastapi/routing.py", line 1843, in _handle_selected
+    await original_route.handle(scope, receive, send)
+  File "/Users/zsudedogan/.gemini/antigravity/scratch/fastapi-app/venv/lib/python3.13/site-packages/fastapi/routing.py", line 1308, in handle
+    await effective_context.app(scope, receive, send)
+  File "/Users/zsudedogan/.gemini/antigravity/scratch/fastapi-app/venv/lib/python3.13/site-packages/fastapi/routing.py", line 165, in app
+    await wrap_app_handling_exceptions(app, request)(scope, receive, send)
+  File "/Users/zsudedogan/.gemini/antigravity/scratch/fastapi-app/venv/lib/python3.13/site-packages/starlette/_exception_handler.py", line 53, in wrapped_app
+    raise exc
+  File "/Users/zsudedogan/.gemini/antigravity/scratch/fastapi-app/venv/lib/python3.13/site-packages/starlette/_exception_handler.py", line 42, in wrapped_app
+    await app(scope, receive, sender)
+  File "/Users/zsudedogan/.gemini/antigravity/scratch/fastapi-app/venv/lib/python3.13/site-packages/fastapi/routing.py", line 151, in app
+    response = await f(request)
+               ^^^^^^^^^^^^^^^^
+  File "/Users/zsudedogan/.gemini/antigravity/scratch/fastapi-app/venv/lib/python3.13/site-packages/fastapi/routing.py", line 727, in app
+    raw_response = await run_endpoint_function(
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<3 lines>...
+    )
+    ^
+  File "/Users/zsudedogan/.gemini/antigravity/scratch/fastapi-app/venv/lib/python3.13/site-packages/fastapi/routing.py", line 360, in run_endpoint_function
+    return await dependant.call(**values)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/zsudedogan/.gemini/antigravity/scratch/fastapi-app/controllers/api_job_posting_controller.py", line 204, in create_new_job_posting
+    return ApiJobPostingController.create(data)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^
+  File "/Users/zsudedogan/.gemini/antigravity/scratch/fastapi-app/controllers/api_job_posting_controller.py", line 62, in create
+    return JobPostingModel.create(data)
+           ~~~~~~~~~~~~~~~~~~~~~~^^^^^^
+  File "/Users/zsudedogan/.gemini/antigravity/scratch/fastapi-app/models/job_posting.py", line 165, in create
+    db.commit()
+    ~~~~~~~~~^^
+  File "/Users/zsudedogan/.gemini/antigravity/scratch/fastapi-app/venv/lib/python3.13/site-packages/sqlalchemy/orm/session.py", line 2095, in commit
+    trans.commit(_to_root=True)
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^
+  File "<sqlalchemy generated _go() wrapper for sqlalchemy.orm.session.SessionTransaction.commit>", line 2, in commit
+    return target(fn, self, _to_root=_to_root)
+  File "/Users/zsudedogan/.gemini/antigravity/scratch/fastapi-app/venv/lib/python3.13/site-packages/sqlalchemy/orm/state_changes.py", line 137, in _go
+    ret_value = fn(self, *arg, **kw)
+  File "/Users/zsudedogan/.gemini/antigravity/scratch/fastapi-app/venv/lib/python3.13/site-packages/sqlalchemy/orm/session.py", line 1330, in commit
+    self._prepare_impl()
+    ~~~~~~~~~~~~~~~~~~^^
+  File "<sqlalchemy generated _go() wrapper for sqlalchemy.orm.session.SessionTransaction._prepare_impl>", line 2, in _prepare_impl
+    return target(fn, self)
+  File "/Users/zsudedogan/.gemini/antigravity/scratch/fastapi-app/venv/lib/python3.13/site-packages/sqlalchemy/orm/state_changes.py", line 137, in _go
+    ret_value = fn(self, *arg, **kw)
+  File "/Users/zsudedogan/.gemini/antigravity/scratch/fastapi-app/venv/lib/python3.13/site-packages/sqlalchemy/orm/session.py", line 1304, in _prepare_impl
+    self.session.flush()
+    ~~~~~~~~~~~~~~~~~~^^
+  File "/Users/zsudedogan/.gemini/antigravity/scratch/fastapi-app/venv/lib/python3.13/site-packages/sqlalchemy/orm/session.py", line 4536, in flush
+    self._flush(objects)
+    ~~~~~~~~~~~^^^^^^^^^
+  File "<sqlalchemy generated warned() wrapper for sqlalchemy.orm.session.Session._flush>", line 2, in _flush
+    return target(fn, self, objects=objects)
+  File "/Users/zsudedogan/.gemini/antigravity/scratch/fastapi-app/venv/lib/python3.13/site-packages/sqlalchemy/util/deprecations.py", line 281, in warned
+    return fn(*args, **kwargs)  # type: ignore[no-any-return]
+  File "/Users/zsudedogan/.gemini/antigravity/scratch/fastapi-app/venv/lib/python3.13/site-packages/sqlalchemy/orm/session.py", line 4679, in _flush
+    with util.safe_reraise():
+         ~~~~~~~~~~~~~~~~~^^
+  File "/Users/zsudedogan/.gemini/antigravity/scratch/fastapi-app/venv/lib/python3.13/site-packages/sqlalchemy/util/langhelpers.py", line 166, in __exit__
+    raise exc_value.with_traceback(exc_tb)
+  File "/Users/zsudedogan/.gemini/antigravity/scratch/fastapi-app/venv/lib/python3.13/site-packages/sqlalchemy/orm/session.py", line 4640, in _flush
+    flush_context.execute()
+    ~~~~~~~~~~~~~~~~~~~~~^^
+  File "/Users/zsudedogan/.gemini/antigravity/scratch/fastapi-app/venv/lib/python3.13/site-packages/sqlalchemy/orm/unitofwork.py", line 467, in execute
+    rec.execute(self)
+    ~~~~~~~~~~~^^^^^^
+  File "/Users/zsudedogan/.gemini/antigravity/scratch/fastapi-app/venv/lib/python3.13/site-packages/sqlalchemy/orm/unitofwork.py", line 643, in execute
+    util.preloaded.orm_persistence._save_obj(
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        self.mapper,
+        ^^^^^^^^^^^^
+        uow.states_for_mapper_hierarchy(self.mapper, False, False),
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        uow,
+        ^^^^
+    )
+    ^
+  File "/Users/zsudedogan/.gemini/antigravity/scratch/fastapi-app/venv/lib/python3.13/site-packages/sqlalchemy/orm/persistence.py", line 92, in _save_obj
+    _emit_insert_statements(
+    ~~~~~~~~~~~~~~~~~~~~~~~^
+        base_mapper,
+        ^^^^^^^^^^^^
+    ...<3 lines>...
+        insert,
+        ^^^^^^^
+    )
+    ^
+  File "/Users/zsudedogan/.gemini/antigravity/scratch/fastapi-app/venv/lib/python3.13/site-packages/sqlalchemy/orm/persistence.py", line 1237, in _emit_insert_statements
+    result = connection.execute(
+        statement,
+        params,
+        execution_options=execution_options,
+    )
+  File "/Users/zsudedogan/.gemini/antigravity/scratch/fastapi-app/venv/lib/python3.13/site-packages/sqlalchemy/engine/base.py", line 1451, in execute
+    return meth(
+        self,
+        distilled_parameters,
+        execution_options or NO_OPTIONS,
+    )
+  File "/Users/zsudedogan/.gemini/antigravity/scratch/fastapi-app/venv/lib/python3.13/site-packages/sqlalchemy/sql/elements.py", line 533, in _execute_on_connection
+    return connection._execute_clauseelement(
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        self, distilled_params, execution_options
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "/Users/zsudedogan/.gemini/antigravity/scratch/fastapi-app/venv/lib/python3.13/site-packages/sqlalchemy/engine/base.py", line 1671, in _execute_clauseelement
+    ret = self._execute_context(
+        dialect,
+    ...<9 lines>...
+        param_dict=param_dict,
+    )
+  File "/Users/zsudedogan/.gemini/antigravity/scratch/fastapi-app/venv/lib/python3.13/site-packages/sqlalchemy/engine/base.py", line 1825, in _execute_context
+    return self._exec_single_context(
+           ~~~~~~~~~~~~~~~~~~~~~~~~~^
+        dialect, context, statement, parameters
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "/Users/zsudedogan/.gemini/antigravity/scratch/fastapi-app/venv/lib/python3.13/site-packages/sqlalchemy/engine/base.py", line 1965, in _exec_single_context
+    self._handle_dbapi_exception(
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        e, str_statement, effective_parameters, cursor, context
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "/Users/zsudedogan/.gemini/antigravity/scratch/fastapi-app/venv/lib/python3.13/site-packages/sqlalchemy/engine/base.py", line 2335, in _handle_dbapi_exception
+    raise sqlalchemy_exception.with_traceback(exc_info[2]) from e
+  File "/Users/zsudedogan/.gemini/antigravity/scratch/fastapi-app/venv/lib/python3.13/site-packages/sqlalchemy/engine/base.py", line 1946, in _exec_single_context
+    self.dialect.do_execute(
+    ~~~~~~~~~~~~~~~~~~~~~~~^
+        cursor, str_statement, effective_parameters, context
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "/Users/zsudedogan/.gemini/antigravity/scratch/fastapi-app/venv/lib/python3.13/site-packages/sqlalchemy/engine/default.py", line 1192, in do_execute
+    cursor.execute(statement, parameters)
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+sqlalchemy.exc.IntegrityError: (sqlite3.IntegrityError) NOT NULL constraint failed: job_postings.description
+[SQL: INSERT INTO job_postings (title, company, city, location, job_type, description, requirements, salary_range, application_deadline, contact_email, is_active, created_at, user_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)]
+[parameters: ('Backend Intern', 'FastAPI Labs', 'Izmir', 'Remote', 'Full-time', None, None, None, None, None, 1, '2026-11-18', None)]
+(Background on this error at: https://sqlalche.me/e/21/gkpj)
+
+------------------------------------------------------------
+[2026-11-18 09:47:16] [POST /api/users] Status: 400
+Detail: Invalid JSON body: Expecting value at line 1 col 32
+------------------------------------------------------------
+[2026-11-18 09:47:16] [POST /api/users] Status: 400
+Detail: HTTP 400 on POST /api/users (Duration: 1ms)
+------------------------------------------------------------
+[2026-11-18 09:47:16] [GET /api/non-existent-endpoint] Status: 404
+Detail: 404 Not Found: The requested URL route or entity does not exist on this server.
+------------------------------------------------------------
+[2026-11-18 09:47:16] [GET /api/non-existent-endpoint] Status: 404
+Detail: HTTP 404 on GET /api/non-existent-endpoint (Duration: 1ms)
+------------------------------------------------------------
+[2026-11-18 09:47:16] [GET /non-existent-web-page] Status: 404
+Detail: 404 Not Found: The requested URL route or entity does not exist on this server.
+------------------------------------------------------------
+[2026-11-18 09:47:16] [GET /non-existent-web-page] Status: 404
+Detail: HTTP 404 on GET /non-existent-web-page (Duration: 1ms)
+------------------------------------------------------------
+[2026-11-18 09:47:16] [GET /api/trigger-log-test-404] Status: 404
+Detail: 404 Not Found: The requested URL route or entity does not exist on this server.
+------------------------------------------------------------
+[2026-11-18 09:47:16] [GET /api/trigger-log-test-404] Status: 404
+Detail: HTTP 404 on GET /api/trigger-log-test-404 (Duration: 1ms)
+------------------------------------------------------------
+[2026-11-18 09:47:43] [GET /api/users/99999] Status: 404
+Detail: 404 Not Found: User with ID 99999 was not found
+------------------------------------------------------------
+[2026-11-18 09:47:43] [GET /api/users/99999] Status: 404
+Detail: HTTP 404 on GET /api/users/99999 (Duration: 1ms)
+------------------------------------------------------------
+[2026-11-18 09:47:43] [GET /api/users/39] Status: 404
+Detail: 404 Not Found: User with ID 39 was not found
+------------------------------------------------------------
+[2026-11-18 09:47:43] [GET /api/users/39] Status: 404
+Detail: HTTP 404 on GET /api/users/39 (Duration: 1ms)
+------------------------------------------------------------
+[2026-11-18 09:47:43] [GET /api/job-postings/11] Status: 404
+Detail: 404 Not Found: Job posting with ID 11 was not found
+------------------------------------------------------------
+[2026-11-18 09:47:43] [GET /api/job-postings/11] Status: 404
+Detail: HTTP 404 on GET /api/job-postings/11 (Duration: 1ms)
+------------------------------------------------------------
+[2026-11-18 09:47:43] [GET /api/users/9999/job-postings] Status: 404
+Detail: 404 Not Found: User with ID 9999 was not found
+------------------------------------------------------------
+[2026-11-18 09:47:43] [GET /api/users/9999/job-postings] Status: 404
+Detail: HTTP 404 on GET /api/users/9999/job-postings (Duration: 1ms)
+------------------------------------------------------------
+[2026-11-18 09:47:43] [GET /api/applications/3] Status: 404
+Detail: 404 Not Found: Application with ID 3 was not found
+------------------------------------------------------------
+[2026-11-18 09:47:43] [GET /api/applications/3] Status: 404
+Detail: HTTP 404 on GET /api/applications/3 (Duration: 1ms)
+------------------------------------------------------------
+[2026-11-18 09:47:43] [GET /api/job-postings/99999/applications] Status: 404
+Detail: 404 Not Found: Job posting with ID 99999 was not found
+------------------------------------------------------------
+[2026-11-18 09:47:43] [GET /api/job-postings/99999/applications] Status: 404
+Detail: HTTP 404 on GET /api/job-postings/99999/applications (Duration: 1ms)
+------------------------------------------------------------
+[2026-11-18 09:47:43] [GET /api/users/99999/applications] Status: 404
+Detail: 404 Not Found: User with ID 99999 was not found
+------------------------------------------------------------
+[2026-11-18 09:47:43] [GET /api/users/99999/applications] Status: 404
+Detail: HTTP 404 on GET /api/users/99999/applications (Duration: 1ms)
+------------------------------------------------------------
+[2026-11-18 09:47:43] [POST /api/job-postings] Status: 400
+Detail: Validation failed on POST /api/job-postings: [{'type': 'string_too_long', 'loc': ('body', 'title'), 'msg': 'String should have at most 120 characters', 'input': 'AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA', 'ctx': {'max_length': 120}}]
+------------------------------------------------------------
+[2026-11-18 09:47:43] [POST /api/job-postings] Status: 400
+Detail: HTTP 400 on POST /api/job-postings (Duration: 1ms)
+------------------------------------------------------------
+[2026-11-18 09:47:43] [POST /api/users] Status: 400
+Detail: Invalid JSON body: Expecting value at line 1 col 32
+------------------------------------------------------------
+[2026-11-18 09:47:43] [POST /api/users] Status: 400
+Detail: HTTP 400 on POST /api/users (Duration: 1ms)
+------------------------------------------------------------
+[2026-11-18 09:47:43] [GET /api/non-existent-endpoint] Status: 404
+Detail: 404 Not Found: The requested URL route or entity does not exist on this server.
+------------------------------------------------------------
+[2026-11-18 09:47:43] [GET /api/non-existent-endpoint] Status: 404
+Detail: HTTP 404 on GET /api/non-existent-endpoint (Duration: 1ms)
+------------------------------------------------------------
+[2026-11-18 09:47:43] [GET /non-existent-web-page] Status: 404
+Detail: 404 Not Found: The requested URL route or entity does not exist on this server.
+------------------------------------------------------------
+[2026-11-18 09:47:43] [GET /non-existent-web-page] Status: 404
+Detail: HTTP 404 on GET /non-existent-web-page (Duration: 1ms)
+------------------------------------------------------------
+[2026-11-18 09:47:43] [GET /api/trigger-log-test-404] Status: 404
+Detail: 404 Not Found: The requested URL route or entity does not exist on this server.
+------------------------------------------------------------
+[2026-11-18 09:47:43] [GET /api/trigger-log-test-404] Status: 404
+Detail: HTTP 404 on GET /api/trigger-log-test-404 (Duration: 1ms)
+------------------------------------------------------------
+[2026-11-18 09:49:14] [GET /api/users/99999] Status: 404
+Detail: 404 Not Found: User with ID 99999 was not found
+------------------------------------------------------------
+[2026-11-18 09:49:14] [GET /api/users/99999] Status: 404
+Detail: HTTP 404 on GET /api/users/99999 (Duration: 1ms)
+------------------------------------------------------------
+[2026-11-18 09:49:15] [GET /api/users/40] Status: 404
+Detail: 404 Not Found: User with ID 40 was not found
+------------------------------------------------------------
+[2026-11-18 09:49:15] [GET /api/users/40] Status: 404
+Detail: HTTP 404 on GET /api/users/40 (Duration: 1ms)
+------------------------------------------------------------
+[2026-11-18 09:49:15] [GET /api/job-postings/17] Status: 404
+Detail: 404 Not Found: Job posting with ID 17 was not found
+------------------------------------------------------------
+[2026-11-18 09:49:15] [GET /api/job-postings/17] Status: 404
+Detail: HTTP 404 on GET /api/job-postings/17 (Duration: 1ms)
+------------------------------------------------------------
+[2026-11-18 09:49:15] [GET /api/users/9999/job-postings] Status: 404
+Detail: 404 Not Found: User with ID 9999 was not found
+------------------------------------------------------------
+[2026-11-18 09:49:15] [GET /api/users/9999/job-postings] Status: 404
+Detail: HTTP 404 on GET /api/users/9999/job-postings (Duration: 1ms)
+------------------------------------------------------------
+[2026-11-18 09:49:15] [GET /api/applications/3] Status: 404
+Detail: 404 Not Found: Application with ID 3 was not found
+------------------------------------------------------------
+[2026-11-18 09:49:15] [GET /api/applications/3] Status: 404
+Detail: HTTP 404 on GET /api/applications/3 (Duration: 1ms)
+------------------------------------------------------------
+[2026-11-18 09:49:15] [GET /api/job-postings/99999/applications] Status: 404
+Detail: 404 Not Found: Job posting with ID 99999 was not found
+------------------------------------------------------------
+[2026-11-18 09:49:15] [GET /api/job-postings/99999/applications] Status: 404
+Detail: HTTP 404 on GET /api/job-postings/99999/applications (Duration: 1ms)
+------------------------------------------------------------
+[2026-11-18 09:49:15] [GET /api/users/99999/applications] Status: 404
+Detail: 404 Not Found: User with ID 99999 was not found
+------------------------------------------------------------
+[2026-11-18 09:49:15] [GET /api/users/99999/applications] Status: 404
+Detail: HTTP 404 on GET /api/users/99999/applications (Duration: 1ms)
+------------------------------------------------------------
+[2026-11-18 09:49:15] [POST /api/job-postings] Status: 400
+Detail: Validation failed on POST /api/job-postings: [{'type': 'string_too_long', 'loc': ('body', 'title'), 'msg': 'String should have at most 120 characters', 'input': 'AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA', 'ctx': {'max_length': 120}}]
+------------------------------------------------------------
+[2026-11-18 09:49:15] [POST /api/job-postings] Status: 400
+Detail: HTTP 400 on POST /api/job-postings (Duration: 1ms)
+------------------------------------------------------------
+[2026-11-18 09:49:15] [POST /api/users] Status: 400
+Detail: Invalid JSON body: Expecting value at line 1 col 32
+------------------------------------------------------------
+[2026-11-18 09:49:15] [POST /api/users] Status: 400
+Detail: HTTP 400 on POST /api/users (Duration: 1ms)
+------------------------------------------------------------
+[2026-11-18 09:49:15] [GET /api/non-existent-endpoint] Status: 404
+Detail: 404 Not Found: The requested URL route or entity does not exist on this server.
+------------------------------------------------------------
+[2026-11-18 09:49:15] [GET /api/non-existent-endpoint] Status: 404
+Detail: HTTP 404 on GET /api/non-existent-endpoint (Duration: 1ms)
+------------------------------------------------------------
+[2026-11-18 09:49:15] [GET /non-existent-web-page] Status: 404
+Detail: 404 Not Found: The requested URL route or entity does not exist on this server.
+------------------------------------------------------------
+[2026-11-18 09:49:15] [GET /non-existent-web-page] Status: 404
+Detail: HTTP 404 on GET /non-existent-web-page (Duration: 2ms)
+------------------------------------------------------------
+[2026-11-18 09:49:15] [GET /api/trigger-log-test-404] Status: 404
+Detail: 404 Not Found: The requested URL route or entity does not exist on this server.
+------------------------------------------------------------
+[2026-11-18 09:49:15] [GET /api/trigger-log-test-404] Status: 404
+Detail: HTTP 404 on GET /api/trigger-log-test-404 (Duration: 1ms)
+------------------------------------------------------------
