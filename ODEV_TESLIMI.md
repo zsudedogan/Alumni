@@ -20,6 +20,11 @@
 | **Step 9** | Implement Logger Middleware & Terminal Output Format | ✅ Completed | `middlewares/pipeline.py`, `middlewares/logger.py` (`logs/error.logs`) |
 | **Step 10** | Body Check & 400 Validation Error Handling | ✅ Completed | `middlewares/pipeline.py` (`BodyCheckMiddleware`), `middlewares/handlers.py` |
 | **Step 11** | Generic 404 with Reason & 5xx Guardian Middlewares | ✅ Completed | `middlewares/handlers.py` (JSON & HTML), `middlewares/pipeline.py` |
+| **Step 12** | Create Temporary Branch `design-homepage` & Prototype | ✅ Completed | Branch `design-homepage`, `homepage_concept.html`, return to `main` |
+| **Step 13** | Author Brand Guidelines & Tokens (`brand.md`) | ✅ Completed | `brand.md` (mission, personality, color tokens, typography) |
+| **Step 14** | Author Design System (`DESIGN.md` - VoltAgent Standard) | ✅ Completed | `DESIGN.md` (conforming to `VoltAgent/design-md` standard) |
+| **Step 15** | Add Anchors in `README.md` to `brand.md` & `DESIGN.md` | ✅ Completed | `README.md` (top callout index) |
+| **Step 16** | Page-by-Page Web App Redesign | ✅ Completed | `main.py` (`/`), `views/user_view.py`, `views/announcement_view.py`, `views/job_posting_view.py`, `views/application_view.py`, `middlewares/handlers.py` |
 
 ---
 

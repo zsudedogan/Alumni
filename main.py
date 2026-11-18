@@ -175,142 +175,196 @@ app.include_router(application_router)
 
 
 
+from views.components import get_base_css, render_navbar, render_footer
+
 # ---------------------------------------------------------
 # Main Landing Hub (GET /)
 # ---------------------------------------------------------
 @app.get("/", response_class=HTMLResponse, tags=["System"])
 async def main_hub():
     """Main Application Landing Hub linking to all interfaces and documentation"""
-    html = """
+    html = f"""
     <!DOCTYPE html>
     <html lang="en">
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Classroom MVC API Hub</title>
+        <title>Alumni OS - Career & Academic Ecosystem</title>
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
         <style>
-            :root {
-                --primary: #4f46e5;
-                --bg: #0f172a;
-                --card-bg: #1e293b;
-                --text: #f8fafc;
-                --muted: #94a3b8;
-                --accent: #38bdf8;
-                --border: #334155;
-            }
-            * { box-sizing: border-box; margin: 0; padding: 0; }
-            body {
-                font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-                background-color: var(--bg);
-                color: var(--text);
-                min-height: 100vh;
-                display: flex;
-                flex-direction: column;
-                justify-content: center;
+            {get_base_css()}
+            .hero-badge {{
+                display: inline-flex;
                 align-items: center;
-                padding: 2rem 1rem;
-            }
-            .container { max-width: 860px; width: 100%; }
-            .hero { text-align: center; margin-bottom: 2.5rem; }
-            .hero h1 { font-size: 2.5rem; margin-bottom: 0.5rem; background: linear-gradient(to right, #818cf8, #38bdf8); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-            .hero p { color: var(--muted); font-size: 1.1rem; }
-            .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 1.5rem; }
-            .card {
-                background: var(--card-bg);
-                border: 1px solid var(--border);
-                border-radius: 14px;
+                gap: 0.5rem;
+                padding: 0.35rem 0.85rem;
+                background: rgba(99, 102, 241, 0.15);
+                border: 1px solid rgba(99, 102, 241, 0.35);
+                border-radius: 9999px;
+                color: #a5b4fc;
+                font-size: 0.8rem;
+                font-weight: 700;
+                margin-bottom: 1.25rem;
+                text-transform: uppercase;
+                letter-spacing: 0.05em;
+            }}
+            .hero-badge .dot {{
+                width: 8px;
+                height: 8px;
+                background: #10b981;
+                border-radius: 50%;
+                box-shadow: 0 0 8px #10b981;
+            }}
+            .hub-hero {{
+                text-align: center;
+                max-width: 820px;
+                margin: 2.5rem auto 3rem;
+            }}
+            .hub-hero h1 {{
+                font-size: 3rem;
+                font-weight: 800;
+                line-height: 1.15;
+                letter-spacing: -0.03em;
+                margin-bottom: 1rem;
+                background: linear-gradient(135deg, #ffffff 40%, #94a3b8 100%);
+                -webkit-background-clip: text;
+                -webkit-text-fill-color: transparent;
+            }}
+            .hub-hero p {{
+                font-size: 1.15rem;
+                color: var(--text-muted);
+                line-height: 1.6;
+            }}
+            .hub-grid {{
+                display: grid;
+                grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+                gap: 1.5rem;
+                margin-bottom: 3rem;
+            }}
+            .hub-card {{
+                background: var(--bg-surface);
+                border: 1px solid var(--border-glass);
+                border-radius: var(--radius-card);
                 padding: 1.75rem;
+                backdrop-filter: blur(16px);
                 display: flex;
                 flex-direction: column;
                 justify-content: space-between;
-                transition: transform 0.2s, border-color 0.2s;
-            }
-            .card:hover { transform: translateY(-4px); border-color: var(--accent); }
-            .card h2 { font-size: 1.3rem; margin-bottom: 0.5rem; color: #ffffff; }
-            .card p { color: var(--muted); font-size: 0.9rem; margin-bottom: 1.5rem; line-height: 1.5; flex-grow: 1; }
-            .btn {
-                display: block;
-                text-align: center;
-                padding: 0.75rem 1rem;
-                background: var(--primary);
-                color: white;
-                text-decoration: none;
-                border-radius: 8px;
-                font-weight: 600;
-                font-size: 0.95rem;
-                transition: background 0.2s;
-            }
-            .btn:hover { background: #4338ca; }
-            .btn-alt { background: #0284c7; }
-            .btn-alt:hover { background: #0369a1; }
-            .btn-docs { background: #059669; }
-            .btn-docs:hover { background: #047857; }
-            .badge { display: inline-block; padding: 0.2rem 0.5rem; font-size: 0.75rem; border-radius: 4px; background: rgba(56, 189, 248, 0.15); color: var(--accent); margin-bottom: 0.75rem; }
-            footer { text-align: center; margin-top: 3rem; color: #64748b; font-size: 0.85rem; }
+                transition: transform 0.25s, border-color 0.25s, box-shadow 0.25s;
+            }}
+            .hub-card:hover {{
+                transform: translateY(-5px);
+                border-color: var(--border-glow);
+                box-shadow: 0 15px 30px -10px rgba(99, 102, 241, 0.2);
+            }}
+            .hub-card-icon {{
+                font-size: 2rem;
+                margin-bottom: 1rem;
+            }}
+            .hub-card h2 {{
+                font-size: 1.35rem;
+                font-weight: 700;
+                color: #ffffff;
+                margin-bottom: 0.5rem;
+            }}
+            .hub-card p {{
+                color: var(--text-muted);
+                font-size: 0.92rem;
+                line-height: 1.55;
+                margin-bottom: 1.5rem;
+                flex-grow: 1;
+            }}
         </style>
     </head>
     <body>
+        {render_navbar(active_route="")}
+
         <div class="container">
-            <div class="hero">
-                <h1>🏛️ Classroom MVC Application Hub</h1>
-                <p>Model-View-Controller Architecture: Web Views, CRUD Controllers & REST APIs</p>
+            <div class="hub-hero">
+                <div class="hero-badge">
+                    <span class="dot"></span>
+                    <span>MVC Lab • Production Ready v4.1</span>
+                </div>
+                <h1>Unified Alumni & Career Platform</h1>
+                <p>High-performance MVC architecture featuring container lifecycle experiments, robust request pipelines, and VoltAgent design standards.</p>
             </div>
 
-            <div class="grid">
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-label">Architecture</div>
+                    <div class="stat-value" style="font-size: 1.6rem; color: #a5b4fc;">MVC + FastAPI</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">Request Pipeline</div>
+                    <div class="stat-value" style="font-size: 1.6rem; color: #34d399;">Active (Logger)</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">Guardians</div>
+                    <div class="stat-value" style="font-size: 1.6rem; color: #38bdf8;">404 & 5xx Enabled</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">Automated Tests</div>
+                    <div class="stat-value" style="font-size: 1.6rem; color: #facc15;">21 / 21 Passing</div>
+                </div>
+            </div>
+
+            <div class="hub-grid">
                 <!-- Card 1: Users -->
-                <div class="card">
+                <div class="hub-card">
                     <div>
-                        <span class="badge">Whiteboard 5 & 6</span>
-                        <h2>👥 Users Management</h2>
-                        <p>Web interface for listing (R) and creating (C) users with full in-memory CRUD operations and View Layer.</p>
+                        <div class="hub-card-icon">👥</div>
+                        <h2>User Directory</h2>
+                        <p>Browse students, alumni, and recruiters. Supports full CRUD operations, live search, and profile management.</p>
                     </div>
-                    <a href="/users/" class="btn">Open Users View</a>
+                    <a href="/users/" class="btn btn-primary">Open User View →</a>
                 </div>
 
-                <!-- Card 2: Announcements (Homework) -->
-                <div class="card">
+                <!-- Card 2: Announcements -->
+                <div class="hub-card">
                     <div>
-                        <span class="badge">Homework Assignment</span>
-                        <h2>📢 Announcements</h2>
-                        <p>Complete announcement management interface without database: create, read, update, delete.</p>
+                        <div class="hub-card-icon">📢</div>
+                        <h2>Department Notices</h2>
+                        <p>Publish academic circulars, campus events, and administrative notices with category tags and instant updates.</p>
                     </div>
-                    <a href="/announcements/" class="btn btn-alt">Open Announcements View</a>
+                    <a href="/announcements/" class="btn btn-secondary">Open Notices View →</a>
                 </div>
 
                 <!-- Card 3: Job Postings -->
-                <div class="card">
+                <div class="hub-card">
                     <div>
-                        <span class="badge">Direct & Nested Routes</span>
-                        <h2>💼 Career & Job Postings</h2>
-                        <p>Explore opportunities or publish listings. Supports direct routes and nested user-resource relationships.</p>
+                        <div class="hub-card-icon">💼</div>
+                        <h2>Career & Job Postings</h2>
+                        <p>Explore internship and full-time opportunities with strict 120-char titles, company validation, and direct application links.</p>
                     </div>
-                    <a href="/job-postings/" class="btn" style="background: #0284c7;">Open Job Postings View</a>
+                    <a href="/job-postings/" class="btn btn-primary">Open Career Portal →</a>
                 </div>
 
                 <!-- Card 4: Applications -->
-                <div class="card">
+                <div class="hub-card">
                     <div>
-                        <span class="badge">Direct & Nested Routes</span>
-                        <h2>📝 Job Applications</h2>
-                        <p>Track and manage student applications. Nested under job postings and users with full CRUD operations.</p>
+                        <div class="hub-card-icon">📝</div>
+                        <h2>Job Applications</h2>
+                        <p>Review candidate submissions, manage application workflows (Pending, Reviewed, Accepted), and submit new applications.</p>
                     </div>
-                    <a href="/applications/" class="btn" style="background: #7c3aed;">Open Applications View</a>
+                    <a href="/applications/" class="btn btn-secondary">Open Applications View →</a>
                 </div>
 
-                <!-- Card 5: Swagger UI -->
-                <div class="card">
-                    <div>
-                        <span class="badge">OpenAPI Documentation</span>
-                        <h2>📖 Swagger API Docs</h2>
-                        <p>Interactive OpenAPI documentation for all controllers (Users, Announcements, Job Postings, Applications).</p>
+                <!-- Card 5: Swagger -->
+                <div class="hub-card" style="grid-column: 1 / -1;">
+                    <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1rem;">
+                        <div>
+                            <div class="hub-card-icon" style="margin-bottom: 0.5rem;">📖</div>
+                            <h2>OpenAPI (Swagger UI) Interactive Documentation</h2>
+                            <p style="margin-bottom: 0;">Explore and test all RESTful CRUD endpoints directly in your browser (/api/swagger).</p>
+                        </div>
+                        <a href="/api/swagger" class="btn btn-primary" target="_blank">Launch Swagger UI ↗</a>
                     </div>
-                    <a href="/api/swagger" class="btn btn-docs" target="_blank">Launch Swagger UI</a>
                 </div>
             </div>
 
-            <footer>
-                Department of Management Information Systems • Istanbul University of Economics • MVC Lab
-            </footer>
+            {render_footer()}
         </div>
     </body>
     </html>

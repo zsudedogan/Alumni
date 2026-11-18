@@ -17,20 +17,23 @@ def render_404_page(reason: str, path: str) -> str:
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>404 - Page Not Found</title>
+    <title>404 - Page Not Found • Alumni OS</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
     <style>
         :root {{
-            --bg: #0f172a;
-            --card-bg: #1e293b;
+            --bg: #090d16;
+            --card-bg: rgba(15, 23, 42, 0.8);
             --text: #f8fafc;
             --muted: #94a3b8;
             --accent: #f43f5e;
-            --primary: #4f46e5;
-            --border: #334155;
+            --primary: #6366f1;
+            --border: rgba(255, 255, 255, 0.08);
         }}
         * {{ box-sizing: border-box; margin: 0; padding: 0; }}
         body {{
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
             background-color: var(--bg);
             color: var(--text);
             min-height: 100vh;
@@ -38,16 +41,18 @@ def render_404_page(reason: str, path: str) -> str:
             align-items: center;
             justify-content: center;
             padding: 2rem;
+            background-image: radial-gradient(circle at 50% 30%, rgba(244, 63, 94, 0.1) 0%, transparent 60%);
         }}
         .card {{
             background: var(--card-bg);
             border: 1px solid var(--border);
-            border-radius: 16px;
+            border-radius: 20px;
             padding: 2.5rem;
             max-width: 540px;
             width: 100%;
             text-align: center;
-            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.4);
+            backdrop-filter: blur(16px);
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.5);
         }}
         .badge {{
             display: inline-block;
@@ -58,6 +63,7 @@ def render_404_page(reason: str, path: str) -> str:
             font-size: 0.85rem;
             font-weight: 700;
             margin-bottom: 1rem;
+            border: 1px solid rgba(244, 63, 94, 0.3);
         }}
         h1 {{
             font-size: 3.5rem;

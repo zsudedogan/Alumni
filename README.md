@@ -2,8 +2,11 @@
 
 This repository implements all classroom exercises, the complete homework assignment, and the container lifecycle experiment: **The Forgetting Test**.
 
-> 📊 **Data Design Specification:**
-> For comprehensive entity definitions, schema constraints, data dictionary, and Entity-Relationship Diagrams (ERD), see the **[Data Design Document (ddd.md)](./ddd.md)**.
+> 📚 **Core Architecture & Design Specifications:**
+> * 🎨 **Brand Identity & Tokens:** **[Brand Guidelines (brand.md)](./brand.md)**
+> * 📐 **Design System (VoltAgent Standard):** **[Design System Specification (DESIGN.md)](./DESIGN.md)**
+> * 📊 **Data Design & ERD Specification:** **[Data Design Document (ddd.md)](./ddd.md)**
+> * 📋 **Step-by-Step Assignment Report:** **[Assignment Submission Report (ODEV_TESLIMI.md)](./ODEV_TESLIMI.md)**
 
 ---
 

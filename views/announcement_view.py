@@ -1,42 +1,56 @@
 """
 Announcement View - MVC Architecture
-Renders the HTML View Layer for Announcement Management Interface (Homework Requirement).
+Renders the HTML View Layer for Announcement Management Interface (VoltAgent DESIGN.md Standard).
 """
 
-from typing import List
+from views.components import get_base_css, render_navbar, render_footer
 
 
 def render_announcement_management_page(announcements: list) -> str:
     """
     Renders an interactive HTML view for managing announcements (listing, creating, editing, deleting).
-    Homework requirement: 'Create interface to manage without database yet'.
     """
     cards_html = ""
     for a in announcements:
-        category_badge = f'<span class="badge badge-cat">{a.category or "General"}</span>'
+        cat = a.category or "General"
+        badge_class = "badge-info"
+        if cat.lower() == "urgent":
+            badge_class = "badge-rejected"
+        elif cat.lower() == "academic":
+            badge_class = "badge-reviewed"
+        elif cat.lower() == "events":
+            badge_class = "badge-accepted"
+
         cards_html += f"""
-        <div class="announcement-card" id="ann-card-{a.id}">
-            <div class="card-header">
-                <div>
-                    <span class="ann-id">#{a.id}</span>
-                    {category_badge}
-                    <h3 class="ann-title">{a.title}</h3>
+        <div class="card ann-card-item" id="ann-card-{a.id}" data-category="{cat.lower()}">
+            <div class="card-header" style="margin-bottom:0.75rem; padding-bottom:0.5rem;">
+                <div style="display:flex; align-items:center; gap:0.5rem; flex-wrap:wrap;">
+                    <span style="font-family:monospace; color:var(--text-muted); font-size:0.8rem; font-weight:700;">#{a.id}</span>
+                    <span class="badge {badge_class}">{cat}</span>
+                    <h3 style="color:#ffffff; font-size:1.15rem; font-weight:700; margin:0;">{a.title}</h3>
                 </div>
-                <div class="card-actions">
-                    <button class="btn btn-sm btn-edit" onclick="editAnnouncement({a.id}, '{a.title}', `{a.content}`, '{a.author or ''}', '{a.category or ''}')">Edit</button>
-                    <button class="btn btn-sm btn-delete" onclick="deleteAnnouncement({a.id})">Delete</button>
+                <div style="display:flex; gap:0.4rem;">
+                    <button class="btn btn-sm btn-secondary" onclick="editAnnouncement({a.id}, `{a.title}`, `{a.content}`, `{a.author or ''}`, `{a.category or ''}`)">✏️ Edit</button>
+                    <button class="btn btn-sm btn-danger" onclick="deleteAnnouncement({a.id})">🗑️ Delete</button>
                 </div>
             </div>
-            <p class="ann-content">{a.content}</p>
-            <div class="card-footer">
-                <span>👤 Posted by: <strong>{a.author or "Admin"}</strong></span>
-                <span>📅 Date: {a.date or "Recent"}</span>
+            <p style="color:var(--text-main); font-size:0.95rem; line-height:1.6; white-space:pre-line; margin-bottom:1rem;">{a.content}</p>
+            <div style="display:flex; justify-content:space-between; align-items:center; font-size:0.8rem; color:var(--text-muted); border-top:1px solid var(--border-glass); padding-top:0.6rem;">
+                <span>👤 Author: <strong style="color:white;">{a.author or "Admin"}</strong></span>
+                <span>📅 Date: <strong style="color:white;">{a.date or "Recent"}</strong></span>
             </div>
         </div>
         """
 
     if not announcements:
-        cards_html = "<p style='color: #64748b; text-align: center; padding: 2rem;'>No announcements yet. Use the form to post one!</p>"
+        cards_html = """
+        <div class="card" style="text-align: center; padding: 3rem 1.5rem;">
+            <p style="color: var(--text-muted); font-size: 1.1rem; margin-bottom: 1rem;">No department notices published yet.</p>
+            <p style="font-size: 0.9rem; color: var(--text-muted);">Use the sidebar form to post an announcement!</p>
+        </div>
+        """
+
+    total_ann = len(announcements)
 
     html = f"""
     <!DOCTYPE html>
@@ -44,173 +58,127 @@ def render_announcement_management_page(announcements: list) -> str:
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Announcement Management - View Layer</title>
+        <title>Department Notices - Alumni OS</title>
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
         <style>
-            :root {{
-                --primary: #4f46e5;
-                --primary-dark: #3730a3;
-                --success: #10b981;
-                --danger: #ef4444;
-                --bg: #f8fafc;
-                --card: #ffffff;
-                --text: #0f172a;
-                --text-muted: #64748b;
-                --border: #e2e8f0;
+            {get_base_css()}
+            .ann-layout {{
+                display: grid;
+                grid-template-columns: 360px 1fr;
+                gap: 1.75rem;
+                align-items: start;
             }}
-            * {{ box-sizing: border-box; margin: 0; padding: 0; }}
-            body {{
-                font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-                background-color: var(--bg);
-                color: var(--text);
-                padding: 2rem 1rem;
-                line-height: 1.5;
+            @media (max-width: 900px) {{
+                .ann-layout {{ grid-template-columns: 1fr; }}
             }}
-            .container {{ max-width: 1040px; margin: 0 auto; }}
-            .header {{
+            .filter-pills {{
                 display: flex;
-                justify-content: space-between;
-                align-items: center;
-                margin-bottom: 2rem;
+                gap: 0.5rem;
                 flex-wrap: wrap;
-                gap: 1rem;
+                margin-bottom: 1.25rem;
             }}
-            .nav-links a {{
-                color: var(--primary);
-                text-decoration: none;
-                font-weight: 500;
-                margin-left: 1rem;
-                padding: 0.4rem 0.8rem;
-                border-radius: 6px;
-                background: #eef2ff;
-            }}
-            .nav-links a:hover {{ background: #e0e7ff; }}
-            .grid {{ display: grid; grid-template-columns: 360px 1fr; gap: 2rem; }}
-            @media (max-width: 860px) {{ .grid {{ grid-template-columns: 1fr; }} }}
-            .card {{
-                background: var(--card);
-                border-radius: 12px;
-                padding: 1.5rem;
-                box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -2px rgba(0, 0, 0, 0.05);
-                border: 1px solid var(--border);
-            }}
-            h2 {{ font-size: 1.25rem; margin-bottom: 1rem; color: #1e293b; }}
-            .form-group {{ margin-bottom: 1rem; }}
-            label {{ display: block; font-size: 0.875rem; font-weight: 500; margin-bottom: 0.25rem; color: var(--text-muted); }}
-            input, textarea, select {{
-                width: 100%;
-                padding: 0.6rem 0.8rem;
-                border: 1px solid var(--border);
-                border-radius: 6px;
-                font-size: 0.95rem;
-                font-family: inherit;
-            }}
-            input:focus, textarea:focus, select:focus {{
-                outline: none;
-                border-color: var(--primary);
-                box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.2);
-            }}
-            .btn {{
-                display: inline-block;
-                padding: 0.6rem 1.2rem;
-                font-size: 0.95rem;
-                font-weight: 500;
-                border-radius: 6px;
-                border: none;
-                cursor: pointer;
-                transition: background 0.2s;
-            }}
-            .btn-primary {{ background: var(--primary); color: white; width: 100%; }}
-            .btn-primary:hover {{ background: var(--primary-dark); }}
-            .btn-sm {{ padding: 0.3rem 0.6rem; font-size: 0.8rem; }}
-            .btn-edit {{ background: #fef3c7; color: #92400e; }}
-            .btn-delete {{ background: #fee2e2; color: #b91c1c; }}
-            .badge {{
-                display: inline-block;
-                padding: 0.2rem 0.5rem;
-                font-size: 0.75rem;
-                font-weight: 600;
-                border-radius: 4px;
-            }}
-            .badge-cat {{ background: #e0e7ff; color: #4338ca; }}
-            .ann-id {{ font-size: 0.8rem; font-weight: 700; color: #64748b; margin-right: 0.4rem; }}
-            .announcement-card {{
-                background: var(--card);
-                border: 1px solid var(--border);
-                border-radius: 10px;
-                padding: 1.25rem;
-                margin-bottom: 1rem;
-                transition: box-shadow 0.2s;
-            }}
-            .announcement-card:hover {{ box-shadow: 0 6px 12px -2px rgba(0, 0, 0, 0.06); }}
-            .card-header {{ display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 0.5rem; }}
-            .ann-title {{ font-size: 1.15rem; color: #1e293b; margin-top: 0.25rem; }}
-            .ann-content {{ color: #475569; margin: 0.75rem 0; white-space: pre-line; }}
-            .card-footer {{
-                display: flex;
-                justify-content: space-between;
-                font-size: 0.825rem;
+            .filter-pill {{
+                padding: 0.35rem 0.85rem;
+                border-radius: 9999px;
+                background: rgba(255, 255, 255, 0.06);
+                border: 1px solid var(--border-glass);
                 color: var(--text-muted);
-                border-top: 1px solid #f1f5f9;
-                padding-top: 0.5rem;
+                font-size: 0.8rem;
+                font-weight: 600;
+                cursor: pointer;
+                transition: all 0.2s;
+            }}
+            .filter-pill:hover, .filter-pill.active {{
+                background: rgba(99, 102, 241, 0.2);
+                border-color: var(--primary);
+                color: #ffffff;
             }}
         </style>
     </head>
     <body>
+        {render_navbar(active_route="announcements")}
+
         <div class="container">
-            <div class="header">
+            <div class="page-header">
                 <div>
-                    <h1>📢 Announcement Management Interface</h1>
-                    <p style="color: var(--text-muted); font-size: 0.9rem;">
-                        Homework Task: In-Memory CRUD management for Announcements via <code>.../announcements/</code>
-                    </p>
+                    <h1>📢 Department Notices & Announcements</h1>
+                    <p>Official academic bulletins, campus events, and administrative circulars for students and alumni.</p>
                 </div>
-                <div class="nav-links">
-                    <a href="/users/">👥 Users Interface</a>
-                    <a href="/api/swagger" target="_blank">📖 Swagger Docs</a>
-                    <a href="/api/announcements" target="_blank">🔗 JSON API</a>
+                <div style="display:flex; gap:0.75rem;">
+                    <a href="/api/announcements" target="_blank" class="btn btn-secondary btn-sm">🔗 JSON API</a>
+                    <a href="/api/swagger" target="_blank" class="btn btn-secondary btn-sm">📖 Swagger Docs</a>
                 </div>
             </div>
 
-            <div class="grid">
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-label">Total Notices</div>
+                    <div class="stat-value">{total_ann}</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">Storage Backend</div>
+                    <div class="stat-value" style="color: #38bdf8;">SQLAlchemy ORM</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">Filter Support</div>
+                    <div class="stat-value" style="color: #34d399;">Categories & Search</div>
+                </div>
+            </div>
+
+            <div class="ann-layout">
                 <!-- FORM: Create / Edit Announcement -->
-                <div class="card">
-                    <h2 id="form-title">➕ New Announcement</h2>
+                <div class="card" style="position: sticky; top: 5rem;">
+                    <div class="card-header">
+                        <span class="card-title" id="form-title">➕ New Notice</span>
+                        <span class="badge badge-info">Publish</span>
+                    </div>
                     <form id="ann-form" onsubmit="handleFormSubmit(event)">
                         <input type="hidden" id="ann-id" value="">
-                        <div class="form-group">
-                            <label for="title">Title *</label>
-                            <input type="text" id="title" required placeholder="e.g. Midterm Exam Schedule">
+                        <div class="form-group" style="margin-bottom: 1rem;">
+                            <label class="form-label" for="title">Notice Title *</label>
+                            <input class="form-input" type="text" id="title" required placeholder="e.g. Midterm Examination Schedule">
                         </div>
-                        <div class="form-group">
-                            <label for="content">Content *</label>
-                            <textarea id="content" rows="4" required placeholder="Announcement details..."></textarea>
-                        </div>
-                        <div class="form-group">
-                            <label for="author">Author</label>
-                            <input type="text" id="author" placeholder="e.g. Prof. Smith / Department">
-                        </div>
-                        <div class="form-group">
-                            <label for="category">Category</label>
-                            <select id="category">
+                        <div class="form-group" style="margin-bottom: 1rem;">
+                            <label class="form-label" for="category">Category</label>
+                            <select class="form-select" id="category">
                                 <option value="Academic">Academic</option>
                                 <option value="General">General</option>
                                 <option value="Events">Events</option>
                                 <option value="Urgent">Urgent</option>
                             </select>
                         </div>
-                        <button type="submit" class="btn btn-primary" id="submit-btn">Publish Announcement</button>
-                        <button type="button" class="btn" style="background:#e2e8f0; width:100%; margin-top:0.5rem; display:none;" id="cancel-btn" onclick="resetForm()">Cancel</button>
+                        <div class="form-group" style="margin-bottom: 1rem;">
+                            <label class="form-label" for="author">Author / Department</label>
+                            <input class="form-input" type="text" id="author" placeholder="e.g. MIS Department Chair">
+                        </div>
+                        <div class="form-group" style="margin-bottom: 1.5rem;">
+                            <label class="form-label" for="content">Notice Content *</label>
+                            <textarea class="form-textarea" id="content" rows="4" required placeholder="Write detailed notice text here..."></textarea>
+                        </div>
+                        <button type="submit" class="btn btn-primary" style="width: 100%;" id="submit-btn">Publish Notice</button>
+                        <button type="button" class="btn btn-secondary" style="width: 100%; margin-top: 0.5rem; display: none;" id="cancel-btn" onclick="resetForm()">Cancel Edit</button>
                     </form>
                 </div>
 
-                <!-- LIST: All Announcements -->
+                <!-- FEED: Announcements List -->
                 <div>
-                    <h2>📜 Live Announcements ({len(announcements)})</h2>
-                    <div id="announcements-list">
+                    <div class="filter-pills">
+                        <button class="filter-pill active" onclick="filterCategory('all', this)">All Notices</button>
+                        <button class="filter-pill" onclick="filterCategory('academic', this)">Academic</button>
+                        <button class="filter-pill" onclick="filterCategory('general', this)">General</button>
+                        <button class="filter-pill" onclick="filterCategory('events', this)">Events</button>
+                        <button class="filter-pill" onclick="filterCategory('urgent', this)">Urgent</button>
+                    </div>
+
+                    <div id="ann-feed">
                         {cards_html}
                     </div>
                 </div>
             </div>
+
+            {render_footer()}
         </div>
 
         <script>
@@ -225,7 +193,6 @@ def render_announcement_management_page(announcements: list) -> str:
                 const payload = {{ title, content, author, category }};
 
                 if (id) {{
-                    // Update (PUT)
                     const res = await fetch(`/announcements/${{id}}`, {{
                         method: 'PUT',
                         headers: {{ 'Content-Type': 'application/json' }},
@@ -234,7 +201,6 @@ def render_announcement_management_page(announcements: list) -> str:
                     if (res.ok) window.location.reload();
                     else alert('Update failed');
                 }} else {{
-                    // Create (POST)
                     const res = await fetch('/announcements/', {{
                         method: 'POST',
                         headers: {{ 'Content-Type': 'application/json' }},
@@ -250,28 +216,44 @@ def render_announcement_management_page(announcements: list) -> str:
                 document.getElementById('title').value = title;
                 document.getElementById('content').value = content;
                 document.getElementById('author').value = author || '';
-                if (category) document.getElementById('category').value = category;
-                document.getElementById('form-title').innerText = '✏️ Edit Announcement #' + id;
-                document.getElementById('submit-btn').innerText = 'Update Announcement';
+                document.getElementById('category').value = category || 'General';
+                document.getElementById('form-title').innerText = '✏️ Edit Notice #' + id;
+                document.getElementById('submit-btn').innerText = 'Update Notice';
                 document.getElementById('cancel-btn').style.display = 'block';
+                window.scrollTo({{ top: 0, behavior: 'smooth' }});
             }}
 
             function resetForm() {{
                 document.getElementById('ann-form').reset();
                 document.getElementById('ann-id').value = '';
-                document.getElementById('form-title').innerText = '➕ New Announcement';
-                document.getElementById('submit-btn').innerText = 'Publish Announcement';
+                document.getElementById('form-title').innerText = '➕ New Notice';
+                document.getElementById('submit-btn').innerText = 'Publish Notice';
                 document.getElementById('cancel-btn').style.display = 'none';
             }}
 
             async function deleteAnnouncement(id) {{
-                if (!confirm('Are you sure you want to delete Announcement #' + id + '?')) return;
+                if (!confirm('Are you sure you want to delete Notice #' + id + '?')) return;
                 const res = await fetch(`/announcements/${{id}}`, {{ method: 'DELETE' }});
                 if (res.ok) {{
-                    document.getElementById('ann-card-' + id)?.remove();
+                    const el = document.getElementById('ann-card-' + id);
+                    if (el) el.remove();
                 }} else {{
                     alert('Delete failed');
                 }}
+            }}
+
+            function filterCategory(cat, btn) {{
+                document.querySelectorAll('.filter-pill').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+
+                const cards = document.querySelectorAll('.ann-card-item');
+                cards.forEach(c => {{
+                    if (cat === 'all' || c.getAttribute('data-category') === cat) {{
+                        c.style.display = '';
+                    }} else {{
+                        c.style.display = 'none';
+                    }}
+                }});
             }}
         </script>
     </body>

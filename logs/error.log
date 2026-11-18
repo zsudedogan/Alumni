@@ -464,3 +464,147 @@ Detail: 404 Not Found: The requested URL route or entity does not exist on this 
 [2026-11-18 09:49:15] [GET /api/trigger-log-test-404] Status: 404
 Detail: HTTP 404 on GET /api/trigger-log-test-404 (Duration: 1ms)
 ------------------------------------------------------------
+[2026-11-18 10:54:26] [GET /api/users/99999] Status: 404
+Detail: 404 Not Found: User with ID 99999 was not found
+------------------------------------------------------------
+[2026-11-18 10:54:26] [GET /api/users/99999] Status: 404
+Detail: HTTP 404 on GET /api/users/99999 (Duration: 1ms)
+------------------------------------------------------------
+[2026-11-18 10:54:26] [GET /api/users/41] Status: 404
+Detail: 404 Not Found: User with ID 41 was not found
+------------------------------------------------------------
+[2026-11-18 10:54:26] [GET /api/users/41] Status: 404
+Detail: HTTP 404 on GET /api/users/41 (Duration: 1ms)
+------------------------------------------------------------
+[2026-11-18 10:54:26] [GET /api/job-postings/23] Status: 404
+Detail: 404 Not Found: Job posting with ID 23 was not found
+------------------------------------------------------------
+[2026-11-18 10:54:26] [GET /api/job-postings/23] Status: 404
+Detail: HTTP 404 on GET /api/job-postings/23 (Duration: 1ms)
+------------------------------------------------------------
+[2026-11-18 10:54:26] [GET /api/users/9999/job-postings] Status: 404
+Detail: 404 Not Found: User with ID 9999 was not found
+------------------------------------------------------------
+[2026-11-18 10:54:26] [GET /api/users/9999/job-postings] Status: 404
+Detail: HTTP 404 on GET /api/users/9999/job-postings (Duration: 1ms)
+------------------------------------------------------------
+[2026-11-18 10:54:26] [GET /api/applications/3] Status: 404
+Detail: 404 Not Found: Application with ID 3 was not found
+------------------------------------------------------------
+[2026-11-18 10:54:26] [GET /api/applications/3] Status: 404
+Detail: HTTP 404 on GET /api/applications/3 (Duration: 1ms)
+------------------------------------------------------------
+[2026-11-18 10:54:26] [GET /api/job-postings/99999/applications] Status: 404
+Detail: 404 Not Found: Job posting with ID 99999 was not found
+------------------------------------------------------------
+[2026-11-18 10:54:26] [GET /api/job-postings/99999/applications] Status: 404
+Detail: HTTP 404 on GET /api/job-postings/99999/applications (Duration: 1ms)
+------------------------------------------------------------
+[2026-11-18 10:54:26] [GET /api/users/99999/applications] Status: 404
+Detail: 404 Not Found: User with ID 99999 was not found
+------------------------------------------------------------
+[2026-11-18 10:54:26] [GET /api/users/99999/applications] Status: 404
+Detail: HTTP 404 on GET /api/users/99999/applications (Duration: 1ms)
+------------------------------------------------------------
+[2026-11-18 10:54:26] [POST /api/job-postings] Status: 400
+Detail: Validation failed on POST /api/job-postings: [{'type': 'string_too_long', 'loc': ('body', 'title'), 'msg': 'String should have at most 120 characters', 'input': 'AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA', 'ctx': {'max_length': 120}}]
+------------------------------------------------------------
+[2026-11-18 10:54:26] [POST /api/job-postings] Status: 400
+Detail: HTTP 400 on POST /api/job-postings (Duration: 1ms)
+------------------------------------------------------------
+[2026-11-18 10:54:26] [POST /api/users] Status: 400
+Detail: Invalid JSON body: Expecting value at line 1 col 32
+------------------------------------------------------------
+[2026-11-18 10:54:26] [POST /api/users] Status: 400
+Detail: HTTP 400 on POST /api/users (Duration: 1ms)
+------------------------------------------------------------
+[2026-11-18 10:54:26] [GET /api/non-existent-endpoint] Status: 404
+Detail: 404 Not Found: The requested URL route or entity does not exist on this server.
+------------------------------------------------------------
+[2026-11-18 10:54:26] [GET /api/non-existent-endpoint] Status: 404
+Detail: HTTP 404 on GET /api/non-existent-endpoint (Duration: 1ms)
+------------------------------------------------------------
+[2026-11-18 10:54:26] [GET /non-existent-web-page] Status: 404
+Detail: 404 Not Found: The requested URL route or entity does not exist on this server.
+------------------------------------------------------------
+[2026-11-18 10:54:26] [GET /non-existent-web-page] Status: 404
+Detail: HTTP 404 on GET /non-existent-web-page (Duration: 1ms)
+------------------------------------------------------------
+[2026-11-18 10:54:26] [GET /api/trigger-log-test-404] Status: 404
+Detail: 404 Not Found: The requested URL route or entity does not exist on this server.
+------------------------------------------------------------
+[2026-11-18 10:54:26] [GET /api/trigger-log-test-404] Status: 404
+Detail: HTTP 404 on GET /api/trigger-log-test-404 (Duration: 1ms)
+------------------------------------------------------------
+[2026-11-18 10:55:04] [GET /api/users/99999] Status: 404
+Detail: 404 Not Found: User with ID 99999 was not found
+------------------------------------------------------------
+[2026-11-18 10:55:04] [GET /api/users/99999] Status: 404
+Detail: HTTP 404 on GET /api/users/99999 (Duration: 1ms)
+------------------------------------------------------------
+[2026-11-18 10:55:04] [GET /api/users/42] Status: 404
+Detail: 404 Not Found: User with ID 42 was not found
+------------------------------------------------------------
+[2026-11-18 10:55:04] [GET /api/users/42] Status: 404
+Detail: HTTP 404 on GET /api/users/42 (Duration: 1ms)
+------------------------------------------------------------
+[2026-11-18 10:55:04] [GET /api/job-postings/29] Status: 404
+Detail: 404 Not Found: Job posting with ID 29 was not found
+------------------------------------------------------------
+[2026-11-18 10:55:04] [GET /api/job-postings/29] Status: 404
+Detail: HTTP 404 on GET /api/job-postings/29 (Duration: 1ms)
+------------------------------------------------------------
+[2026-11-18 10:55:04] [GET /api/users/9999/job-postings] Status: 404
+Detail: 404 Not Found: User with ID 9999 was not found
+------------------------------------------------------------
+[2026-11-18 10:55:04] [GET /api/users/9999/job-postings] Status: 404
+Detail: HTTP 404 on GET /api/users/9999/job-postings (Duration: 1ms)
+------------------------------------------------------------
+[2026-11-18 10:55:05] [GET /api/applications/3] Status: 404
+Detail: 404 Not Found: Application with ID 3 was not found
+------------------------------------------------------------
+[2026-11-18 10:55:05] [GET /api/applications/3] Status: 404
+Detail: HTTP 404 on GET /api/applications/3 (Duration: 1ms)
+------------------------------------------------------------
+[2026-11-18 10:55:05] [GET /api/job-postings/99999/applications] Status: 404
+Detail: 404 Not Found: Job posting with ID 99999 was not found
+------------------------------------------------------------
+[2026-11-18 10:55:05] [GET /api/job-postings/99999/applications] Status: 404
+Detail: HTTP 404 on GET /api/job-postings/99999/applications (Duration: 1ms)
+------------------------------------------------------------
+[2026-11-18 10:55:05] [GET /api/users/99999/applications] Status: 404
+Detail: 404 Not Found: User with ID 99999 was not found
+------------------------------------------------------------
+[2026-11-18 10:55:05] [GET /api/users/99999/applications] Status: 404
+Detail: HTTP 404 on GET /api/users/99999/applications (Duration: 1ms)
+------------------------------------------------------------
+[2026-11-18 10:55:05] [POST /api/job-postings] Status: 400
+Detail: Validation failed on POST /api/job-postings: [{'type': 'string_too_long', 'loc': ('body', 'title'), 'msg': 'String should have at most 120 characters', 'input': 'AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA', 'ctx': {'max_length': 120}}]
+------------------------------------------------------------
+[2026-11-18 10:55:05] [POST /api/job-postings] Status: 400
+Detail: HTTP 400 on POST /api/job-postings (Duration: 1ms)
+------------------------------------------------------------
+[2026-11-18 10:55:05] [POST /api/users] Status: 400
+Detail: Invalid JSON body: Expecting value at line 1 col 32
+------------------------------------------------------------
+[2026-11-18 10:55:05] [POST /api/users] Status: 400
+Detail: HTTP 400 on POST /api/users (Duration: 1ms)
+------------------------------------------------------------
+[2026-11-18 10:55:05] [GET /api/non-existent-endpoint] Status: 404
+Detail: 404 Not Found: The requested URL route or entity does not exist on this server.
+------------------------------------------------------------
+[2026-11-18 10:55:05] [GET /api/non-existent-endpoint] Status: 404
+Detail: HTTP 404 on GET /api/non-existent-endpoint (Duration: 1ms)
+------------------------------------------------------------
+[2026-11-18 10:55:05] [GET /non-existent-web-page] Status: 404
+Detail: 404 Not Found: The requested URL route or entity does not exist on this server.
+------------------------------------------------------------
+[2026-11-18 10:55:05] [GET /non-existent-web-page] Status: 404
+Detail: HTTP 404 on GET /non-existent-web-page (Duration: 1ms)
+------------------------------------------------------------
+[2026-11-18 10:55:05] [GET /api/trigger-log-test-404] Status: 404
+Detail: 404 Not Found: The requested URL route or entity does not exist on this server.
+------------------------------------------------------------
+[2026-11-18 10:55:05] [GET /api/trigger-log-test-404] Status: 404
+Detail: HTTP 404 on GET /api/trigger-log-test-404 (Duration: 1ms)
+------------------------------------------------------------
