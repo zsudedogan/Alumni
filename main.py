@@ -3,7 +3,7 @@ Classroom Web API - Complete MVC Architecture Implementation
 Mounts User and Announcement Controllers (both Web/View and API/JSON) and configures Swagger UI.
 """
 
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
 from fastapi.responses import HTMLResponse, PlainTextResponse, RedirectResponse
 
 # Import Controllers and Routers
@@ -25,6 +25,8 @@ from controllers.api_application_controller import (
 )
 from controllers.application_controller import application_router, ApplicationController
 from controllers.register_controller import register_router
+from controllers.auth_controller import auth_router
+from controllers.admin_controller import admin_router
 
 # ---------------------------------------------------------
 # Swagger (OpenAPI) Tag Metadata
@@ -99,6 +101,7 @@ from middlewares import (
     BodyCheckMiddleware,
     LoggerMiddleware,
     Guardian5xxMiddleware,
+    AuthMiddleware,
     validation_exception_handler,
     custom_starlette_http_exception_handler,
 )
@@ -122,6 +125,12 @@ async def lifespan(app: FastAPI):
                 conn.commit()
             except Exception:
                 pass
+        # Ensure Sude Dogan (id 2) has role='Admin' and password
+        try:
+            conn.execute(text("UPDATE users SET role='Admin', password='password123' WHERE id=2"))
+            conn.commit()
+        except Exception:
+            pass
     yield
 
 # Initialize FastAPI application with custom Swagger UI at /api/swagger
@@ -145,9 +154,10 @@ Complete implementation of:
 )
 
 # ---------------------------------------------------------
-# Register Middlewares (Pipeline: 5xx Guardian -> Logger -> BodyCheck -> Route)
+# Register Middlewares (Pipeline: 5xx Guardian -> Logger -> Auth -> BodyCheck -> Route)
 # ---------------------------------------------------------
 app.add_middleware(BodyCheckMiddleware)
+app.add_middleware(AuthMiddleware)
 app.add_middleware(LoggerMiddleware)
 app.add_middleware(Guardian5xxMiddleware)
 
@@ -188,6 +198,10 @@ app.include_router(application_router)
 
 # Authentication & Registration Module
 app.include_router(register_router)
+app.include_router(auth_router)
+
+# Administrative Control Center Module
+app.include_router(admin_router)
 
 
 
@@ -197,8 +211,23 @@ from views.components import get_base_css, render_navbar, render_footer, render_
 # Main Landing Hub (GET /) - UniBridge Giriş Sistemi
 # ---------------------------------------------------------
 @app.get("/", response_class=HTMLResponse, tags=["System"])
-async def main_hub():
+async def main_hub(request: Request):
     """UniBridge Istanbul University Entry & Career Portal"""
+    current_user = getattr(request.state, "user", None)
+    admin_banner_html = ""
+    if current_user and getattr(current_user, "role", "") == "Admin":
+        admin_banner_html = f"""
+        <div style="background: rgba(197, 155, 39, 0.12); border: 1px solid rgba(197, 155, 39, 0.35); border-radius: 12px; padding: 1.1rem 1.6rem; margin-bottom: 2rem; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1rem; box-shadow: 0 4px 15px rgba(197, 155, 39, 0.1);">
+            <div style="display: flex; align-items: center; gap: 0.85rem;">
+                <span style="font-size: 1.8rem;">👑</span>
+                <div>
+                    <div style="font-weight: 800; color: #854d0e; font-size: 1.05rem;">Yönetici Girişi Yapıldı: {current_user.name} (Admin)</div>
+                    <div style="font-size: 0.85rem; color: #78350f;">UniBridge Yönetim Paneli üzerinden kullanıcıları, duyuruları ve ilanları manipüle edebilirsiniz.</div>
+                </div>
+            </div>
+            <a href="/admin/" class="btn btn-primary" style="background: var(--primary); padding: 0.6rem 1.2rem; font-size: 0.9rem;">Yönetim Paneline Git →</a>
+        </div>
+        """
     html = f"""
     <!DOCTYPE html>
     <html lang="tr">
@@ -386,9 +415,10 @@ async def main_hub():
         </style>
     </head>
     <body>
-        {render_navbar(active_route="")}
+        {render_navbar(active_route="home", current_user=current_user)}
 
         <div class="container">
+            {admin_banner_html}
             <!-- Top Official Seal & UniBridge Header -->
             <div class="unibridge-hero">
                 {render_iu_logo(size=92)}

@@ -22,7 +22,7 @@ class RegisterController:
     Provides web interface and RESTful JSON endpoint for account creation.
     """
 
-    ALLOWED_ROLES = {"Student", "Alumni", "Recruiter", "Academic"}
+    ALLOWED_ROLES = {"Student", "Alumni", "Recruiter", "Academic", "Admin"}
 
     @classmethod
     def get_register_page(cls) -> HTMLResponse:

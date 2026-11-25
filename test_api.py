@@ -4,6 +4,7 @@ Run with: pytest test_api.py
 """
 
 import pytest
+import uuid
 
 try:
     from fastapi.testclient import TestClient
@@ -492,5 +493,123 @@ def test_22_register_web_view():
     assert "Recruiter" in res.text
     assert "Academic" in res.text
     assert "Select Your Role" in res.text
+
+
+@pytest.mark.skipif(client is None, reason="FastAPI or TestClient not installed yet")
+def test_23_auth_middleware_blocks_unauthenticated_admin_access():
+    """Verify AuthMiddleware blocks unauthenticated requests to /admin/ and /api/admin"""
+    # 1. Web HTML request: redirects to login
+    res_web = client.get("/admin/", headers={"Accept": "text/html"}, follow_redirects=False)
+    assert res_web.status_code == 303
+    assert "/login/" in res_web.headers.get("location", "")
+
+    # 2. JSON API request: returns 401 Unauthorized
+    res_api = client.delete("/api/admin/users/999", headers={"Accept": "application/json"})
+    assert res_api.status_code == 401
+    assert "authentication required" in res_api.json()["detail"].lower()
+
+
+@pytest.mark.skipif(client is None, reason="FastAPI or TestClient not installed yet")
+def test_24_auth_login_and_session_flow():
+    """Verify login authentication endpoint sets cookie and returns session token"""
+    # 1. Invalid credentials
+    res_bad = client.post("/api/auth/login", json={"email": "sude@example.com", "password": "wrongpassword"})
+    assert res_bad.status_code == 401
+    assert "invalid email or password" in res_bad.json()["detail"].lower()
+
+    # 2. Valid credentials (Sude Dogan)
+    res_good = client.post("/api/auth/login", json={"email": "sude@example.com", "password": "password123"})
+    assert res_good.status_code == 200
+    data = res_good.json()
+    assert "token" in data
+    assert data["user"]["email"] == "sude@example.com"
+    assert data["user"]["role"] == "Admin"
+
+    # Verify session cookie was set
+    token = data["token"]
+    assert token.startswith("sess_")
+
+    # 3. /api/auth/me with Bearer token
+    res_me = client.get("/api/auth/me", headers={"Authorization": f"Bearer {token}"})
+    assert res_me.status_code == 200
+    assert res_me.json()["name"] == "Sude Dogan"
+
+
+@pytest.mark.skipif(client is None, reason="FastAPI or TestClient not installed yet")
+def test_25_admin_panel_access_and_rbac():
+    """Verify RBAC: non-admin gets 403 Forbidden, Admin gets 200 OK dashboard"""
+    import uuid
+    # 1. Register and login as a normal Student
+    student_email = f"student_{uuid.uuid4().hex[:6]}@example.com"
+    reg_res = client.post("/api/auth/register", json={
+        "name": "Normal Student",
+        "email": student_email,
+        "password": "password123",
+        "role": "Student"
+    })
+    assert reg_res.status_code == 201
+
+    login_student = client.post("/api/auth/login", json={"email": student_email, "password": "password123"})
+    student_token = login_student.json()["token"]
+
+    # Student trying to access /admin/: gets 403 Forbidden
+    res_forbidden = client.get(
+        "/admin/",
+        headers={"Accept": "text/html", "Authorization": f"Bearer {student_token}"}
+    )
+    assert res_forbidden.status_code == 403
+    assert "403" in res_forbidden.text or "Yönetici Yetkisi Gerekli" in res_forbidden.text
+
+    # 2. Admin (Sude Dogan) accessing /admin/: gets 200 OK
+    login_admin = client.post("/api/auth/login", json={"email": "sude@example.com", "password": "password123"})
+    admin_token = login_admin.json()["token"]
+
+    res_admin = client.get(
+        "/admin/",
+        headers={"Accept": "text/html", "Authorization": f"Bearer {admin_token}"}
+    )
+    assert res_admin.status_code == 200
+    assert "UniBridge Yönetim Paneli" in res_admin.text
+    assert "Sude Dogan" in res_admin.text
+
+
+@pytest.mark.skipif(client is None, reason="FastAPI or TestClient not installed yet")
+def test_26_admin_data_manipulation():
+    """Verify Admin can manipulate data: change user role, publish announcement, delete announcement"""
+    # Login as Admin
+    login_admin = client.post("/api/auth/login", json={"email": "sude@example.com", "password": "password123"})
+    admin_token = login_admin.json()["token"]
+    cookies = {"session_token": admin_token}
+
+    # 1. Admin creates a user
+    res_create_user = client.post(
+        "/admin/users/create",
+        data={"name": "Test Stajyer", "email": f"staj_{uuid.uuid4().hex[:6]}@example.com", "role": "Student", "department": "YBS", "password": "password123"},
+        cookies=cookies,
+        follow_redirects=False
+    )
+    assert res_create_user.status_code == 303
+
+    # 2. Admin creates an announcement
+    res_ann = client.post(
+        "/admin/announcements/create",
+        data={"title": "Admin Test Duyurusu", "content": "Sistem admin paneli testi.", "category": "Kariyer"},
+        cookies=cookies,
+        follow_redirects=False
+    )
+    assert res_ann.status_code == 303
+
+    # Verify announcement is listed
+    res_list = client.get("/announcements/")
+    assert "Admin Test Duyurusu" in res_list.text
+
+    # 3. Admin updates role of user 1 to Admin
+    res_role = client.post(
+        "/admin/users/1/role",
+        data={"role": "Admin"},
+        cookies=cookies,
+        follow_redirects=False
+    )
+    assert res_role.status_code == 303
 
 

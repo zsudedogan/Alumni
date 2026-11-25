@@ -78,8 +78,8 @@ class UserModel:
 
     # Baseline seed data for initial setup
     _seed_data = [
-        {"id": 1, "name": "Emre Yilmaz", "age": 24, "email": "emre@example.com", "role": "Alumni", "department": "Computer Engineering"},
-        {"id": 2, "name": "Sude Dogan", "age": 22, "email": "sude@example.com", "role": "Student", "department": "Software Engineering"},
+        {"id": 1, "name": "Emre Yilmaz", "age": 24, "email": "emre@example.com", "role": "Alumni", "department": "Computer Engineering", "password": "password123"},
+        {"id": 2, "name": "Sude Dogan", "age": 22, "email": "sude@example.com", "role": "Admin", "department": "Management Information Systems", "password": "password123"},
     ]
 
     @staticmethod
@@ -108,6 +108,7 @@ class UserModel:
                     email=item["email"],
                     role=item.get("role", "Student"),
                     department=item.get("department"),
+                    password=item.get("password"),
                     created_at="2026-11-01 10:00"
                 )
                 db.add(user)
@@ -178,6 +179,29 @@ class UserModel:
         try:
             entity = db.query(UserEntity).filter(UserEntity.email == email).first()
             if entity:
+                return cls._entity_to_pydantic(entity)
+            return None
+        finally:
+            db.close()
+
+    # 3c. AUTHENTICATE
+    @classmethod
+    def authenticate(cls, email: str, password: str) -> Optional[User]:
+        """
+        Validates user credentials against database. Returns User if valid, None otherwise.
+        """
+        if not email:
+            return None
+        db = SessionLocal()
+        try:
+            entity = db.query(UserEntity).filter(UserEntity.email == email.strip().lower()).first()
+            if not entity:
+                # Try exact match if case-sensitive
+                entity = db.query(UserEntity).filter(UserEntity.email == email.strip()).first()
+            if not entity:
+                return None
+            # Check password
+            if entity.password and entity.password == password.strip():
                 return cls._entity_to_pydantic(entity)
             return None
         finally:
@@ -327,3 +351,7 @@ def patch_user_record(user_id: int, user_data: UserPatch) -> Optional[User]:
 
 def delete_user_record(user_id: int) -> Optional[User]:
     return UserModel.delete(user_id)
+
+def authenticate_user(email: str, password: str) -> Optional[User]:
+    return UserModel.authenticate(email, password)
+

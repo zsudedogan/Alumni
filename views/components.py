@@ -4,6 +4,9 @@ Implements clean light aesthetics, Istanbul University Forest Green and Warm Gol
 and card-based role portal interfaces.
 """
 
+from typing import Any, Optional
+
+
 
 def render_iu_logo(size: int = 84) -> str:
     """Renders the official high-fidelity circular T.C. İstanbul Üniversitesi seal (1453)"""
@@ -408,6 +411,7 @@ def get_base_css() -> str:
         .badge-alumni { background: #fef6e7; color: #b45309; border: 1px solid rgba(180, 83, 9, 0.25); }
         .badge-recruiter { background: #e6f4ea; color: #15803d; border: 1px solid rgba(21, 128, 61, 0.25); }
         .badge-academic { background: #ede9fe; color: #6b21a8; border: 1px solid rgba(107, 33, 168, 0.25); }
+        .badge-admin { background: #fef08a; color: #854d0e; border: 1px solid rgba(133, 77, 14, 0.35); font-weight: 800; }
 
         /* --- FOOTER (UniBridge Standard) --- */
         footer.app-footer {
@@ -442,10 +446,26 @@ def get_base_css() -> str:
     """
 
 
-def render_navbar(active_route: str = "") -> str:
-    """Renders the UniBridge top navigation bar with Istanbul University seal"""
+def render_navbar(active_route: str = "", current_user: Any = None) -> str:
+    """Renders the UniBridge top navigation bar with Istanbul University seal and authentication links"""
     def is_active(route_prefix: str) -> str:
         return "active" if active_route == route_prefix else ""
+
+    auth_links = ""
+    if current_user:
+        admin_link = ""
+        if getattr(current_user, "role", "") == "Admin":
+            admin_link = f'<a href="/admin/" class="nav-link {is_active("admin")}" style="background: rgba(197, 155, 39, 0.15); color: #854d0e; border: 1px solid rgba(197, 155, 39, 0.35); font-weight: 700;">👑 Admin Paneli</a>'
+
+        auth_links = f"""
+        {admin_link}
+        <a href="/logout/" class="nav-link" style="color: #991b1b;" title="Oturumu Kapat">🚪 Çıkış ({getattr(current_user, 'name', 'Kullanıcı')})</a>
+        """
+    else:
+        auth_links = f"""
+        <a href="/login/" class="nav-link {is_active('login')}">🔐 Giriş</a>
+        <a href="/register/" class="nav-link {is_active('register')}">✨ Kayıt Ol</a>
+        """
 
     return f"""
     <nav class="navbar">
@@ -462,7 +482,7 @@ def render_navbar(active_route: str = "") -> str:
                 <a href="/announcements/" class="nav-link {is_active('announcements')}">📢 Notices</a>
                 <a href="/job-postings/" class="nav-link {is_active('jobs')}">💼 Careers</a>
                 <a href="/applications/" class="nav-link {is_active('applications')}">📝 Applications</a>
-                <a href="/register/" class="nav-link {is_active('register')}">✨ Register</a>
+                {auth_links}
                 <a href="/api/swagger" class="nav-link btn-swagger" target="_blank">📖 Swagger</a>
             </div>
         </div>
