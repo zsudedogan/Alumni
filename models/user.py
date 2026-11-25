@@ -3,7 +3,8 @@ User Model - MVC Architecture
 Encapsulates User data structure and relational database CRUD operations using SQLAlchemy.
 """
 
-from typing import List, Optional
+from typing import List, Optional, Union
+from datetime import datetime
 from pydantic import BaseModel
 from database import SessionLocal
 from models.db_entities import UserEntity
@@ -17,16 +18,30 @@ class UserBase(BaseModel):
     name: str
     age: Optional[int] = None
     email: Optional[str] = None
+    role: str = "Student"
+    department: Optional[str] = None
+    bio: Optional[str] = None
 
 
 class UserCreate(UserBase):
     """Schema for creating a new user (POST /api/users)"""
-    pass
+    password: Optional[str] = None
+
+
+class UserRegister(BaseModel):
+    """Schema for registering a new user (POST /register/ or POST /api/auth/register)"""
+    name: str
+    email: str
+    password: str
+    role: str = "Student"
+    department: Optional[str] = None
+    age: Optional[int] = None
+    bio: Optional[str] = None
 
 
 class UserUpdate(UserBase):
     """Schema for fully updating a user (PUT /api/users/{id})"""
-    pass
+    password: Optional[str] = None
 
 
 class UserPatch(BaseModel):
@@ -34,11 +49,16 @@ class UserPatch(BaseModel):
     name: Optional[str] = None
     age: Optional[int] = None
     email: Optional[str] = None
+    role: Optional[str] = None
+    department: Optional[str] = None
+    bio: Optional[str] = None
+    password: Optional[str] = None
 
 
 class User(UserBase):
-    """User entity containing unique ID"""
+    """User entity containing unique ID and audit metadata (public representation, excludes password)"""
     id: int
+    created_at: Optional[str] = None
 
 
 class UserWithJobPostings(User):
@@ -58,33 +78,60 @@ class UserModel:
 
     # Baseline seed data for initial setup
     _seed_data = [
-        {"id": 1, "name": "Emre Yilmaz", "age": 24, "email": "emre@example.com"},
-        {"id": 2, "name": "Sude Dogan", "age": 22, "email": "sude@example.com"},
+        {"id": 1, "name": "Emre Yilmaz", "age": 24, "email": "emre@example.com", "role": "Alumni", "department": "Computer Engineering"},
+        {"id": 2, "name": "Sude Dogan", "age": 22, "email": "sude@example.com", "role": "Student", "department": "Software Engineering"},
     ]
+
+    @staticmethod
+    def _entity_to_pydantic(entity: UserEntity) -> User:
+        """Converts SQLAlchemy UserEntity to public Pydantic User schema"""
+        return User(
+            id=entity.id,
+            name=entity.name,
+            age=entity.age,
+            email=entity.email,
+            role=entity.role or "Student",
+            department=entity.department,
+            bio=entity.bio,
+            created_at=entity.created_at,
+        )
 
     @classmethod
     def _ensure_baseline_data(cls, db):
         """Ensures default classroom baseline records exist if table is empty"""
         if db.query(UserEntity).count() == 0:
             for item in cls._seed_data:
-                user = UserEntity(id=item["id"], name=item["name"], age=item["age"], email=item["email"])
+                user = UserEntity(
+                    id=item["id"],
+                    name=item["name"],
+                    age=item["age"],
+                    email=item["email"],
+                    role=item.get("role", "Student"),
+                    department=item.get("department"),
+                    created_at="2026-11-01 10:00"
+                )
                 db.add(user)
             db.commit()
 
     # 1. CREATE
     @classmethod
-    def create(cls, user_data: UserCreate) -> User:
+    def create(cls, user_data: Union[UserCreate, UserRegister]) -> User:
         """
         Creates a new user in the database with auto-increment ID.
         CRUD: Create
         """
         db = SessionLocal()
         try:
-            entity = UserEntity(**user_data.model_dump())
+            dump = user_data.model_dump()
+            if not dump.get("created_at"):
+                dump["created_at"] = datetime.now().strftime("%Y-%m-%d %H:%M")
+            if not dump.get("role"):
+                dump["role"] = "Student"
+            entity = UserEntity(**dump)
             db.add(entity)
             db.commit()
             db.refresh(entity)
-            return User(id=entity.id, name=entity.name, age=entity.age, email=entity.email)
+            return cls._entity_to_pydantic(entity)
         finally:
             db.close()
 
@@ -99,7 +146,7 @@ class UserModel:
         try:
             cls._ensure_baseline_data(db)
             entities = db.query(UserEntity).order_by(UserEntity.id.asc()).all()
-            return [User(id=e.id, name=e.name, age=e.age, email=e.email) for e in entities]
+            return [cls._entity_to_pydantic(e) for e in entities]
         finally:
             db.close()
 
@@ -114,7 +161,24 @@ class UserModel:
         try:
             entity = db.query(UserEntity).filter(UserEntity.id == user_id).first()
             if entity:
-                return User(id=entity.id, name=entity.name, age=entity.age, email=entity.email)
+                return cls._entity_to_pydantic(entity)
+            return None
+        finally:
+            db.close()
+
+    # 3b. READ BY EMAIL
+    @classmethod
+    def get_by_email(cls, email: str) -> Optional[User]:
+        """
+        Finds and returns a single user by email. Returns None if not found.
+        """
+        if not email:
+            return None
+        db = SessionLocal()
+        try:
+            entity = db.query(UserEntity).filter(UserEntity.email == email).first()
+            if entity:
+                return cls._entity_to_pydantic(entity)
             return None
         finally:
             db.close()
@@ -135,9 +199,17 @@ class UserModel:
             entity.name = data["name"]
             entity.age = data.get("age")
             entity.email = data.get("email")
+            if "role" in data and data["role"] is not None:
+                entity.role = data["role"]
+            if "department" in data:
+                entity.department = data["department"]
+            if "bio" in data:
+                entity.bio = data["bio"]
+            if "password" in data and data["password"]:
+                entity.password = data["password"]
             db.commit()
             db.refresh(entity)
-            return User(id=entity.id, name=entity.name, age=entity.age, email=entity.email)
+            return cls._entity_to_pydantic(entity)
         finally:
             db.close()
 
@@ -160,9 +232,17 @@ class UserModel:
                 entity.age = data["age"]
             if "email" in data:
                 entity.email = data["email"]
+            if "role" in data and data["role"] is not None:
+                entity.role = data["role"]
+            if "department" in data:
+                entity.department = data["department"]
+            if "bio" in data:
+                entity.bio = data["bio"]
+            if "password" in data and data["password"] is not None:
+                entity.password = data["password"]
             db.commit()
             db.refresh(entity)
-            return User(id=entity.id, name=entity.name, age=entity.age, email=entity.email)
+            return cls._entity_to_pydantic(entity)
         finally:
             db.close()
 
@@ -178,7 +258,7 @@ class UserModel:
             entity = db.query(UserEntity).filter(UserEntity.id == user_id).first()
             if not entity:
                 return None
-            deleted_user = User(id=entity.id, name=entity.name, age=entity.age, email=entity.email)
+            deleted_user = cls._entity_to_pydantic(entity)
             db.delete(entity)
             db.commit()
             return deleted_user
@@ -210,6 +290,10 @@ class UserModel:
                 name=entity.name,
                 age=entity.age,
                 email=entity.email,
+                role=entity.role or "Student",
+                department=entity.department,
+                bio=entity.bio,
+                created_at=entity.created_at,
                 job_postings=jobs_summary
             )
         finally:
@@ -223,11 +307,17 @@ class UserModel:
 def create_user_record(user_data: UserCreate) -> User:
     return UserModel.create(user_data)
 
+def register_user_record(user_data: UserRegister) -> User:
+    return UserModel.create(user_data)
+
 def get_all_user_records() -> List[User]:
     return UserModel.get_all()
 
 def get_user_record_by_id(user_id: int) -> Optional[User]:
     return UserModel.get_by_id(user_id)
+
+def get_user_record_by_email(email: str) -> Optional[User]:
+    return UserModel.get_by_email(email)
 
 def update_user_record(user_id: int, user_data: UserUpdate) -> Optional[User]:
     return UserModel.update(user_id, user_data)

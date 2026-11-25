@@ -24,11 +24,16 @@ from controllers.api_application_controller import (
     ApiApplicationController,
 )
 from controllers.application_controller import application_router, ApplicationController
+from controllers.register_controller import register_router
 
 # ---------------------------------------------------------
 # Swagger (OpenAPI) Tag Metadata
 # ---------------------------------------------------------
 tags_metadata = [
+    {
+        "name": "Authentication & Registration",
+        "description": "User registration portal (`/register/`) and account onboarding (`/api/auth/register`) with ecosystem roles.",
+    },
     {
         "name": "ApiUserController (/api/users)",
         "description": "RESTful CRUD API endpoints for programmatic User operations (JSON format).",
@@ -102,13 +107,21 @@ from middlewares import (
 async def lifespan(app: FastAPI):
     # Startup: ensure tables exist in database
     Base.metadata.create_all(bind=engine)
-    # Ensure optional columns like city exist in sqlite if created earlier
-    try:
-        with engine.connect() as conn:
-            conn.execute(text("ALTER TABLE job_postings ADD COLUMN city VARCHAR(100)"))
-            conn.commit()
-    except Exception:
-        pass
+    # Ensure optional columns exist in sqlite if created earlier
+    with engine.connect() as conn:
+        for alter_stmt in [
+            "ALTER TABLE job_postings ADD COLUMN city VARCHAR(100)",
+            "ALTER TABLE users ADD COLUMN role VARCHAR(50) DEFAULT 'Student'",
+            "ALTER TABLE users ADD COLUMN department VARCHAR(100)",
+            "ALTER TABLE users ADD COLUMN bio TEXT",
+            "ALTER TABLE users ADD COLUMN password VARCHAR(255)",
+            "ALTER TABLE users ADD COLUMN created_at VARCHAR(20)",
+        ]:
+            try:
+                conn.execute(text(alter_stmt))
+                conn.commit()
+            except Exception:
+                pass
     yield
 
 # Initialize FastAPI application with custom Swagger UI at /api/swagger
@@ -172,6 +185,9 @@ app.include_router(api_application_router)
 app.include_router(nested_job_application_router)
 app.include_router(nested_user_application_router)
 app.include_router(application_router)
+
+# Authentication & Registration Module
+app.include_router(register_router)
 
 
 
@@ -351,7 +367,17 @@ async def main_hub():
                     <a href="/applications/" class="btn btn-secondary">Open Applications View →</a>
                 </div>
 
-                <!-- Card 5: Swagger -->
+                <!-- Card 5: Registration Portal -->
+                <div class="hub-card">
+                    <div>
+                        <div class="hub-card-icon">✨</div>
+                        <h2>Role-Based Registration</h2>
+                        <p>Create an account as a Student, Alumni, Recruiter, or Academic faculty with full profile onboarding.</p>
+                    </div>
+                    <a href="/register/" class="btn btn-primary">Join Ecosystem →</a>
+                </div>
+
+                <!-- Card 6: Swagger -->
                 <div class="hub-card" style="grid-column: 1 / -1;">
                     <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1rem;">
                         <div>

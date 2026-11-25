@@ -282,6 +282,7 @@ async def custom_starlette_http_exception_handler(request: Request, exc: Starlet
             "error": "HTTP Error",
             "status_code": exc.status_code,
             "reason": exc.detail,
+            "detail": exc.detail,
             "path": request.url.path
         }
     )

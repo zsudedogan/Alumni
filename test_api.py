@@ -414,3 +414,83 @@ def test_19_error_logging_mechanism():
         log_content = f.read()
     assert "/api/trigger-log-test-404" in log_content
 
+
+@pytest.mark.skipif(client is None, reason="FastAPI or TestClient not installed yet")
+def test_20_register_user_with_role_and_department():
+    """Verify user registration with specific ecosystem role and department"""
+    import uuid
+    unique_email = f"alumni_{uuid.uuid4().hex[:6]}@example.com"
+    payload = {
+        "name": "Baris Akarsu",
+        "email": unique_email,
+        "password": "secretpassword123",
+        "role": "Alumni",
+        "department": "Computer Engineering",
+        "age": 27,
+        "bio": "Senior Cloud Engineer at TechCorp"
+    }
+
+    # Register user
+    res = client.post("/api/auth/register", json=payload)
+    assert res.status_code == 201
+    data = res.json()
+    assert data["name"] == "Baris Akarsu"
+    assert data["email"] == unique_email
+    assert data["role"] == "Alumni"
+    assert data["department"] == "Computer Engineering"
+    assert data["bio"] == "Senior Cloud Engineer at TechCorp"
+    assert "password" not in data  # Ensure security sanitization
+    user_id = data["id"]
+
+    # Verify user is retrievable via GET /api/users/{id}
+    get_res = client.get(f"/api/users/{user_id}")
+    assert get_res.status_code == 200
+    assert get_res.json()["role"] == "Alumni"
+
+    # Duplicate registration should fail with 400
+    dup_res = client.post("/api/auth/register", json=payload)
+    assert dup_res.status_code == 400
+    assert "already exists" in dup_res.json()["detail"].lower()
+
+
+@pytest.mark.skipif(client is None, reason="FastAPI or TestClient not installed yet")
+def test_21_register_user_validation_checks():
+    """Verify validation rules: minimum password length and allowed roles"""
+    import uuid
+    # 1. Short password (< 6 chars)
+    short_pw_payload = {
+        "name": "Short Pw User",
+        "email": f"short_{uuid.uuid4().hex[:6]}@example.com",
+        "password": "123",
+        "role": "Student"
+    }
+    res_short = client.post("/api/auth/register", json=short_pw_payload)
+    assert res_short.status_code == 400
+    assert "at least 6 characters" in res_short.json()["detail"]
+
+    # 2. Invalid role
+    invalid_role_payload = {
+        "name": "Hacker User",
+        "email": f"hacker_{uuid.uuid4().hex[:6]}@example.com",
+        "password": "password123",
+        "role": "SuperAdminGodMode"
+    }
+    res_role = client.post("/api/auth/register", json=invalid_role_payload)
+    assert res_role.status_code == 400
+    assert "invalid role" in res_role.json()["detail"].lower()
+
+
+@pytest.mark.skipif(client is None, reason="FastAPI or TestClient not installed yet")
+def test_22_register_web_view():
+    """Verify registration HTML web view is accessible and renders role choices"""
+    res = client.get("/register/")
+    assert res.status_code == 200
+    assert "text/html" in res.headers.get("content-type", "")
+    assert "Join Alumni Ecosystem" in res.text
+    assert "Student" in res.text
+    assert "Alumni" in res.text
+    assert "Recruiter" in res.text
+    assert "Academic" in res.text
+    assert "Select Your Role" in res.text
+
+

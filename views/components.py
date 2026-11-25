@@ -337,6 +337,10 @@ def get_base_css() -> str:
         .badge-accepted { background: rgba(16, 185, 129, 0.15); color: #10b981; border: 1px solid rgba(16, 185, 129, 0.3); }
         .badge-rejected { background: rgba(244, 63, 94, 0.15); color: #f43f5e; border: 1px solid rgba(244, 63, 94, 0.3); }
         .badge-info { background: rgba(99, 102, 241, 0.15); color: #a5b4fc; border: 1px solid rgba(99, 102, 241, 0.3); }
+        .badge-student { background: rgba(56, 189, 248, 0.15); color: #38bdf8; border: 1px solid rgba(56, 189, 248, 0.3); }
+        .badge-alumni { background: rgba(16, 185, 129, 0.15); color: #10b981; border: 1px solid rgba(16, 185, 129, 0.3); }
+        .badge-recruiter { background: rgba(245, 158, 11, 0.15); color: #f59e0b; border: 1px solid rgba(245, 158, 11, 0.3); }
+        .badge-academic { background: rgba(168, 85, 247, 0.15); color: #c084fc; border: 1px solid rgba(168, 85, 247, 0.3); }
 
         /* --- FOOTER --- */
         footer.app-footer {
@@ -380,6 +384,7 @@ def render_navbar(active_route: str = "") -> str:
                 <a href="/announcements/" class="nav-link {is_active('announcements')}">📢 Notices</a>
                 <a href="/job-postings/" class="nav-link {is_active('jobs')}">💼 Careers</a>
                 <a href="/applications/" class="nav-link {is_active('applications')}">📝 Applications</a>
+                <a href="/register/" class="nav-link {is_active('register')}">✨ Register</a>
                 <a href="/api/swagger" class="nav-link btn-swagger" target="_blank">📖 Swagger</a>
             </div>
         </div>

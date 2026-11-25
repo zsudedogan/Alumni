@@ -16,13 +16,18 @@ class UserEntity(Base):
     name = Column(String(255), nullable=False)
     age = Column(Integer, nullable=True)
     email = Column(String(255), nullable=True)
+    role = Column(String(50), nullable=False, default="Student")
+    department = Column(String(100), nullable=True)
+    bio = Column(Text, nullable=True)
+    password = Column(String(255), nullable=True)
+    created_at = Column(String(20), nullable=True)
 
     # Relationships
     job_postings = relationship("JobPostingEntity", back_populates="user", cascade="all, delete-orphan")
     applications = relationship("ApplicationEntity", back_populates="user", cascade="all, delete-orphan")
 
     def __repr__(self):
-        return f"<UserEntity(id={self.id}, name='{self.name}', email='{self.email}')>"
+        return f"<UserEntity(id={self.id}, name='{self.name}', role='{self.role}', email='{self.email}')>"
 
 
 class AnnouncementEntity(Base):

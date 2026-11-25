@@ -11,12 +11,23 @@ from views.components import get_base_css, render_navbar, render_footer
 def render_user_management_page(users: List[User]) -> str:
     """
     Renders an interactive HTML view for listing users (R) and creating users (C),
-    with full client-side actions for edit (PUT/PATCH) and delete (D).
+    with full client-side actions for edit (PUT/PATCH) and delete (D),
+    displaying roles, departments, and profile stats.
     """
     user_rows = ""
     for u in users:
         age_display = f"{u.age} yrs" if u.age is not None else "-"
         email_display = u.email if u.email else "-"
+        role_name = getattr(u, "role", "Student") or "Student"
+        role_css = {
+            "Student": "badge-student",
+            "Alumni": "badge-alumni",
+            "Recruiter": "badge-recruiter",
+            "Academic": "badge-academic"
+        }.get(role_name, "badge-info")
+        dept_val = getattr(u, "department", "") or ""
+        dept_display = f" • {dept_val}" if dept_val else ""
+
         # Get initials
         parts = u.name.split()
         initials = "".join([p[0].upper() for p in parts[:2]]) if parts else "U"
@@ -30,15 +41,16 @@ def render_user_management_page(users: List[User]) -> str:
                     </div>
                     <div>
                         <div style="font-weight:700; color:#ffffff;">{u.name}</div>
-                        <div style="font-size:0.75rem; color:var(--text-muted); font-family:monospace;">ID #{u.id}</div>
+                        <div style="font-size:0.75rem; color:var(--text-muted); font-family:monospace;">ID #{u.id}{dept_display}</div>
                     </div>
                 </div>
             </td>
+            <td><span class="badge {role_css}">{role_name}</span></td>
             <td><span class="badge badge-info">{age_display}</span></td>
             <td><span style="color:#38bdf8; font-family:monospace; font-size:0.85rem;">{email_display}</span></td>
             <td style="text-align:right;">
                 <div style="display:inline-flex; gap:0.4rem;">
-                    <button class="btn btn-sm btn-secondary" onclick="editUser({u.id}, '{u.name}', {u.age or 0}, '{u.email or ''}')">✏️ Edit</button>
+                    <button class="btn btn-sm btn-secondary" onclick="editUser({u.id}, '{u.name}', {u.age or 0}, '{u.email or ''}', '{role_name}', '{dept_val}')">✏️ Edit</button>
                     <button class="btn btn-sm btn-danger" onclick="deleteUser({u.id})">🗑️ Delete</button>
                 </div>
             </td>
@@ -106,6 +118,7 @@ def render_user_management_page(users: List[User]) -> str:
                     <p>MVC View Layer: Full CRUD lifecycle for students, alumni, and departmental recruiters.</p>
                 </div>
                 <div style="display:flex; gap:0.75rem; align-items:center;">
+                    <a href="/register/" class="btn btn-primary btn-sm">✨ Register Portal</a>
                     <a href="/api/users" target="_blank" class="btn btn-secondary btn-sm">🔗 JSON API</a>
                     <a href="/api/swagger" target="_blank" class="btn btn-secondary btn-sm">📖 Swagger Docs</a>
                 </div>
@@ -117,12 +130,12 @@ def render_user_management_page(users: List[User]) -> str:
                     <div class="stat-value">{total_users} Users</div>
                 </div>
                 <div class="stat-card">
-                    <div class="stat-label">Database Storage</div>
-                    <div class="stat-value" style="color: #34d399;">SQLAlchemy</div>
+                    <div class="stat-label">Roles Supported</div>
+                    <div class="stat-value" style="color: #38bdf8;">4 Ecosystem</div>
                 </div>
                 <div class="stat-card">
-                    <div class="stat-label">CRUD Operations</div>
-                    <div class="stat-value" style="color: #38bdf8;">GET, POST, PUT, DELETE</div>
+                    <div class="stat-label">Database Storage</div>
+                    <div class="stat-value" style="color: #34d399;">SQLAlchemy</div>
                 </div>
             </div>
 
@@ -138,6 +151,19 @@ def render_user_management_page(users: List[User]) -> str:
                         <div class="form-group" style="margin-bottom: 1rem;">
                             <label class="form-label" for="name">Full Name *</label>
                             <input class="form-input" type="text" id="name" required placeholder="e.g. Canan Ozturk">
+                        </div>
+                        <div class="form-group" style="margin-bottom: 1rem;">
+                            <label class="form-label" for="role">Role *</label>
+                            <select class="form-input" id="role">
+                                <option value="Student">🎓 Student</option>
+                                <option value="Alumni">💼 Alumni</option>
+                                <option value="Recruiter">🏢 Recruiter</option>
+                                <option value="Academic">🏛️ Academic</option>
+                            </select>
+                        </div>
+                        <div class="form-group" style="margin-bottom: 1rem;">
+                            <label class="form-label" for="department">Department / Company</label>
+                            <input class="form-input" type="text" id="department" placeholder="e.g. Software Engineering">
                         </div>
                         <div class="form-group" style="margin-bottom: 1rem;">
                             <label class="form-label" for="age">Age</label>
@@ -169,6 +195,7 @@ def render_user_management_page(users: List[User]) -> str:
                             <thead>
                                 <tr>
                                     <th>User Profile</th>
+                                    <th>Role</th>
                                     <th>Age</th>
                                     <th>Email</th>
                                     <th style="text-align: right;">Actions</th>
@@ -190,10 +217,12 @@ def render_user_management_page(users: List[User]) -> str:
                 e.preventDefault();
                 const id = document.getElementById('user-id').value;
                 const name = document.getElementById('name').value;
+                const role = document.getElementById('role').value;
+                const department = document.getElementById('department').value || null;
                 const age = document.getElementById('age').value ? parseInt(document.getElementById('age').value) : null;
                 const email = document.getElementById('email').value || null;
 
-                const payload = {{ name, age, email }};
+                const payload = {{ name, role, department, age, email }};
 
                 if (id) {{
                     const res = await fetch(`/users/${{id}}`, {{
@@ -214,11 +243,13 @@ def render_user_management_page(users: List[User]) -> str:
                 }}
             }}
 
-            function editUser(id, name, age, email) {{
+            function editUser(id, name, age, email, role, department) {{
                 document.getElementById('user-id').value = id;
                 document.getElementById('name').value = name;
                 document.getElementById('age').value = age || '';
                 document.getElementById('email').value = email || '';
+                if (role) document.getElementById('role').value = role;
+                if (department) document.getElementById('department').value = department;
                 document.getElementById('form-title').innerText = '✏️ Edit User #' + id;
                 document.getElementById('submit-btn').innerText = 'Update User Record';
                 document.getElementById('cancel-btn').style.display = 'block';
