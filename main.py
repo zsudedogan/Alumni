@@ -27,6 +27,7 @@ from controllers.application_controller import application_router, ApplicationCo
 from controllers.register_controller import register_router
 from controllers.auth_controller import auth_router
 from controllers.admin_controller import admin_router
+from controllers.portal_controller import portal_router
 
 # ---------------------------------------------------------
 # Swagger (OpenAPI) Tag Metadata
@@ -202,6 +203,9 @@ app.include_router(auth_router)
 
 # Administrative Control Center Module
 app.include_router(admin_router)
+
+# User Role Portals Module
+app.include_router(portal_router)
 
 
 
@@ -433,7 +437,7 @@ async def main_hub(request: Request):
                     <div class="icon-circle icon-student">🎓</div>
                     <h2>Öğrenci</h2>
                     <p>Aktif öğrenciler için öğrenci otomasyonu girişi.</p>
-                    <a href="/register/" class="btn-unibridge">Giriş Yap</a>
+                    <a href="/portal/student" class="btn-unibridge">Portala Git →</a>
                 </div>
 
                 <!-- 2. Mezun -->
@@ -441,7 +445,7 @@ async def main_hub(request: Request):
                     <div class="icon-circle icon-alumni">🎖️</div>
                     <h2>Mezun</h2>
                     <p>Mezunlar ağı ve kariyer fırsatları portalı.</p>
-                    <a href="/register/" class="btn-unibridge">Giriş Yap</a>
+                    <a href="/portal/alumni" class="btn-unibridge">Portala Git →</a>
                 </div>
 
                 <!-- 3. Akademik -->
@@ -449,7 +453,7 @@ async def main_hub(request: Request):
                     <div class="icon-circle icon-academic">🖥️</div>
                     <h2>Akademik</h2>
                     <p>Öğretim üyeleri ve idari personel erişimi.</p>
-                    <a href="/register/" class="btn-unibridge">Giriş Yap</a>
+                    <a href="/portal/academic" class="btn-unibridge">Portala Git →</a>
                 </div>
 
                 <!-- 4. İşveren / İK -->
@@ -457,7 +461,7 @@ async def main_hub(request: Request):
                     <div class="icon-circle icon-recruiter">🏢</div>
                     <h2>İşveren / Sektör</h2>
                     <p>Kurumsal iş ve staj ilanları yönetimi ile aday değerlendirme portalı.</p>
-                    <a href="/register/" class="btn-unibridge">Giriş Yap</a>
+                    <a href="/portal/recruiter" class="btn-unibridge">Portala Git →</a>
                 </div>
             </div>
 

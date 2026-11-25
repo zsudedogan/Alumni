@@ -394,13 +394,82 @@ python3 seed.py --clean --users 15 --announcements 8
 
 ---
 
-## 🌐 Interactive Web Interfaces
+---
+
+## 🔐 Authentication, Middleware & Role-Based Access Control (RBAC)
+
+The application features a secure, full-stack authentication and session management architecture built with custom middleware and Starlette lifecycle integration.
+
+### 🛡️ Authentication Architecture & Middleware Pipeline
+
+The HTTP request pipeline processes incoming requests in strict order:
+```text
+Client Request
+      │
+      ▼
+[1. Guardian 5xx Middleware]   ─── Intercepts unhandled errors, logs tracebacks to logs/error.logs
+      │
+      ▼
+[2. Logger Middleware]         ─── Terminal access logs [time] [method] [route] [code] [duration]
+      │
+      ▼
+[3. Auth Middleware]           ─── Extracts session cookie / Bearer token, populates request.state.user, enforces RBAC
+      │
+      ▼
+[4. Body Check Middleware]     ─── Validates incoming JSON syntax for POST/PUT/PATCH
+      │
+      ▼
+Target Controller / Route      ─── Executes business logic with verified user identity
+```
+
+- **Session Store & Cookies**: Secure token generator (`sess_<uuid>`) issued upon login, stored in HTTP-only `session_token` cookie (and returned as JSON Bearer token for API clients).
+- **Context Propagation**: Utilizes Python standard library `contextvars` for thread-safe, async-safe user context across all View layers without parameter drilling.
+- **Route Protection**:
+  - `/admin/` and `/api/admin/*`: Enforces `role == "Admin"`. Unauthenticated requests redirect to `/login/?next=/admin/` (or return `401 Unauthorized` for API callers). Non-admin roles receive an official Istanbul University **HTTP 403 Forbidden** page.
+  - `/portal/`: Dynamically routes logged-in users to their respective tailored role portal.
+
+---
+
+### 👑 Roles & Permissions Matrix
+
+| Role | Default Landing | Menu Items & Responsibilities | Demo Credentials |
+|---|---|---|---|
+| **`Admin`** | `/admin/` | • 👑 **Yönetim Paneli** (`/admin/`): Full CRUD data manipulation for Users, Announcements, Jobs, and Applications.<br>• Reassign user roles dynamically, delete records, toggle job status.<br>• Access to OpenAPI Swagger UI. | **Email:** `sude@example.com`<br>**Password:** `password123` |
+| **`Student`** | `/portal/student` | • 🎓 **Öğrenci Portalı**: Recommended internship and job postings, personal application status tracking, departmental announcements, alumni networking. | Register via `/register/` or login |
+| **`Alumni`** | `/portal/alumni` | • 📜 **Mezun Portalı**: Post new career openings for juniors/students, alumni mentorship network, departmental reunions and bulletins. | Register via `/register/` or login |
+| **`Recruiter`** | `/portal/recruiter` | • 💼 **İşveren Portalı**: Corporate job listing management, candidate applicant evaluation (`Pending` ➔ `Reviewed` ➔ `Accepted` / `Rejected`), student talent pool search. | Register via `/register/` or login |
+| **`Academic`** | `/portal/academic` | • 🏛️ **Akademik Portal**: Publish departmental notices and exam announcements, view registered student and alumni roster. | Register via `/register/` or login |
+| **`Guest`** | `/` | • Public directory, job listings, notices, registration (`/register/`), login (`/login/`). | Unauthenticated |
+
+---
+
+### 🧭 Dynamic Navigation Menu by User Role
+
+The top navigation bar (`render_navbar`) dynamically detects the active user's session and displays role-tailored links:
+* **Guest**: `👥 Users` • `📢 Notices` • `💼 Careers` • `📝 Applications` • `🔐 Giriş` • `✨ Register` • `📖 Swagger`
+* **Student**: `🎓 Öğrenci Portalı` • `💼 Staj & İlanlar` • `📝 Başvurularım` • `📢 Duyurular` • `👥 Mezun Ağı` • `[🎓 User Name]` • `🚪 Çıkış`
+* **Alumni**: `📜 Mezun Portalı` • `💼 İlanlar & Kariyer` • `🤝 Mentorluk Ağı` • `📢 Duyurular` • `[📜 User Name]` • `🚪 Çıkış`
+* **Recruiter**: `💼 İşveren Portalı` • `➕ İlan Yönetimi` • `📋 Aday Başvuruları` • `👥 Yetenek Havuzu` • `[💼 User Name]` • `🚪 Çıkış`
+* **Academic**: `🏛️ Akademik Portal` • `📢 Duyurular & Bülten` • `🎓 Öğrenci Listesi` • `💼 Staj Olanakları` • `[🏛️ User Name]` • `🚪 Çıkış`
+* **Admin**: `👑 Admin Paneli` • `👥 Users` • `📢 Notices` • `💼 Careers` • `📝 Applications` • `[👑 Sude Doğan (Admin)]` • `🚪 Çıkış`
+
+---
+
+## 🌐 Interactive Web Interfaces & User Portals
 
 Open your browser to test each component:
 * 🏛️ **Main Application Hub:** [http://127.0.0.1:8000/](http://127.0.0.1:8000/)
-* 👥 **User Management Interface (View Layer):** [http://127.0.0.1:8000/users/](http://127.0.0.1:8000/users/)
+* 🔐 **Login Page:** [http://127.0.0.1:8000/login/](http://127.0.0.1:8000/login/)
+* ✨ **Registration Portal:** [http://127.0.0.1:8000/register/](http://127.0.0.1:8000/register/)
+* 👑 **UniBridge Admin Control Center:** [http://127.0.0.1:8000/admin/](http://127.0.0.1:8000/admin/) *(Requires Admin role)*
+* 🎓 **Student Career & Internship Portal:** [http://127.0.0.1:8000/portal/student](http://127.0.0.1:8000/portal/student)
+* 📜 **Alumni Solidarity & Mentorship Portal:** [http://127.0.0.1:8000/portal/alumni](http://127.0.0.1:8000/portal/alumni)
+* 💼 **Corporate Recruiter & Talent Portal:** [http://127.0.0.1:8000/portal/recruiter](http://127.0.0.1:8000/portal/recruiter)
+* 🏛️ **Academic Faculty & Departmental Portal:** [http://127.0.0.1:8000/portal/academic](http://127.0.0.1:8000/portal/academic)
+* 👥 **User Directory Interface:** [http://127.0.0.1:8000/users/](http://127.0.0.1:8000/users/)
 * 📢 **Announcement Management Interface:** [http://127.0.0.1:8000/announcements/](http://127.0.0.1:8000/announcements/)
 * 💼 **Job Postings Management Interface:** [http://127.0.0.1:8000/job-postings/](http://127.0.0.1:8000/job-postings/)
 * 📝 **Applications Management Interface:** [http://127.0.0.1:8000/applications/](http://127.0.0.1:8000/applications/)
-* 📖 **Swagger UI Documentation:** [http://127.0.0.1:8000/api/swagger](http://127.0.0.1:8000/api/swagger)
+* 📖 **OpenAPI (Swagger UI):** [http://127.0.0.1:8000/api/swagger](http://127.0.0.1:8000/api/swagger)
+
 

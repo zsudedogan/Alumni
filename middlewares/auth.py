@@ -6,6 +6,7 @@ Protects administrative paths (/admin/* and /api/admin/*) ensuring only users wi
 
 import uuid
 import secrets
+import contextvars
 from typing import Optional, Dict
 from starlette.middleware.base import BaseHTTPMiddleware
 from starlette.requests import Request
@@ -14,6 +15,13 @@ from models.user import get_user_record_by_id, User
 
 # In-memory session store mapping session_token -> user_id
 _ACTIVE_SESSIONS: Dict[str, int] = {}
+_current_user_cv = contextvars.ContextVar("current_user", default=None)
+
+
+def get_current_request_user() -> Optional[User]:
+    """Returns the user associated with the current async request context"""
+    return _current_user_cv.get()
+
 
 
 def create_user_session(user_id: int) -> str:
@@ -136,46 +144,51 @@ class AuthMiddleware(BaseHTTPMiddleware):
         path = request.url.path
         current_user = get_current_user_from_request(request)
         request.state.user = current_user
+        cv_token = _current_user_cv.set(current_user)
 
-        # Check if the requested route is under Admin control
-        is_admin_route = path == "/admin" or path.startswith("/admin/") or path.startswith("/api/admin")
+        try:
+            # Check if the requested route is under Admin control
+            is_admin_route = path == "/admin" or path.startswith("/admin/") or path.startswith("/api/admin")
 
-        if is_admin_route:
-            # 1. Unauthenticated Check
-            if not current_user:
-                accept_header = request.headers.get("accept", "")
-                is_html_request = "text/html" in accept_header and not path.startswith("/api/")
-                if is_html_request:
-                    login_url = f"/login/?next={path}&error=auth_required"
-                    return RedirectResponse(url=login_url, status_code=303)
-                return JSONResponse(
-                    status_code=401,
-                    content={
-                        "error": "Unauthorized",
-                        "detail": "Authentication required. Please log in to access administrative resources.",
-                        "status_code": 401,
-                        "path": path,
-                    }
-                )
-
-            # 2. Role Authorization Check: Must have Admin role
-            if current_user.role != "Admin":
-                accept_header = request.headers.get("accept", "")
-                is_html_request = "text/html" in accept_header and not path.startswith("/api/")
-                if is_html_request:
-                    return HTMLResponse(
-                        status_code=403,
-                        content=render_403_page(user_name=current_user.name, role=current_user.role)
+            if is_admin_route:
+                # 1. Unauthenticated Check
+                if not current_user:
+                    accept_header = request.headers.get("accept", "")
+                    is_html_request = "text/html" in accept_header and not path.startswith("/api/")
+                    if is_html_request:
+                        login_url = f"/login/?next={path}&error=auth_required"
+                        return RedirectResponse(url=login_url, status_code=303)
+                    return JSONResponse(
+                        status_code=401,
+                        content={
+                            "error": "Unauthorized",
+                            "detail": "Authentication required. Please log in to access administrative resources.",
+                            "status_code": 401,
+                            "path": path,
+                        }
                     )
-                return JSONResponse(
-                    status_code=403,
-                    content={
-                        "error": "Forbidden",
-                        "detail": f"Admin role required. Current user role is '{current_user.role}'.",
-                        "status_code": 403,
-                        "path": path,
-                    }
-                )
 
-        # Proceed with request pipeline
-        return await call_next(request)
+                # 2. Role Authorization Check: Must have Admin role
+                if current_user.role != "Admin":
+                    accept_header = request.headers.get("accept", "")
+                    is_html_request = "text/html" in accept_header and not path.startswith("/api/")
+                    if is_html_request:
+                        return HTMLResponse(
+                            status_code=403,
+                            content=render_403_page(user_name=current_user.name, role=current_user.role)
+                        )
+                    return JSONResponse(
+                        status_code=403,
+                        content={
+                            "error": "Forbidden",
+                            "detail": f"Admin role required. Current user role is '{current_user.role}'.",
+                            "status_code": 403,
+                            "path": path,
+                        }
+                    )
+
+            # Proceed with request pipeline
+            return await call_next(request)
+        finally:
+            _current_user_cv.reset(cv_token)
+

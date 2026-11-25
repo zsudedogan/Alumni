@@ -613,3 +613,78 @@ def test_26_admin_data_manipulation():
     assert res_role.status_code == 303
 
 
+@pytest.mark.skipif(client is None, reason="FastAPI or TestClient not installed yet")
+def test_27_dynamic_navigation_menu_by_role():
+    """Verify navigation menu adapts dynamically depending on the user's role"""
+    # 1. Guest navigation (ensure fresh unauthenticated client state)
+    client.cookies.clear()
+    res_guest = client.get("/", headers={"Accept": "text/html"})
+    assert res_guest.status_code == 200
+    assert "Giriş" in res_guest.text
+    assert "Register" in res_guest.text or "Kayıt Ol" in res_guest.text
+
+    # 2. Student navigation
+    client.cookies.clear()
+    student_email = f"nav_student_{uuid.uuid4().hex[:6]}@example.com"
+    client.post("/api/auth/register", json={
+        "name": "Sude Ogr",
+        "email": student_email,
+        "password": "password123",
+        "role": "Student"
+    })
+    login_student = client.post("/api/auth/login", json={"email": student_email, "password": "password123"}).json()
+    token_student = login_student["token"]
+
+    res_student = client.get("/", headers={"Authorization": f"Bearer {token_student}"})
+    assert res_student.status_code == 200
+    assert "Öğrenci Portalı" in res_student.text
+    assert "Başvurularım" in res_student.text
+    assert "Sude Ogr" in res_student.text
+
+    # 3. Admin navigation
+    client.cookies.clear()
+    login_admin = client.post("/api/auth/login", json={"email": "sude@example.com", "password": "password123"}).json()
+    token_admin = login_admin["token"]
+
+    res_admin = client.get("/", headers={"Authorization": f"Bearer {token_admin}"})
+    assert res_admin.status_code == 200
+    assert "Admin Paneli" in res_admin.text
+
+
+@pytest.mark.skipif(client is None, reason="FastAPI or TestClient not installed yet")
+def test_28_user_specific_portal_pages():
+    """Verify tailored portal views for Student, Alumni, Recruiter, and Academic roles"""
+    client.cookies.clear()
+    # 1. Student Portal
+    res_student = client.get("/portal/student")
+    assert res_student.status_code == 200
+    assert "Öğrenci Portalı" in res_student.text
+    assert "Başvuru Takip Çizelgesi" in res_student.text
+
+    # 2. Alumni Portal
+    res_alumni = client.get("/portal/alumni")
+    assert res_alumni.status_code == 200
+    assert "Mezun Portalı" in res_alumni.text
+    assert "Mezun Mentorluk" in res_alumni.text
+
+    # 3. Recruiter Portal
+    res_recruiter = client.get("/portal/recruiter")
+    assert res_recruiter.status_code == 200
+    assert "İşveren Portalı" in res_recruiter.text
+    assert "Yetenek Havuzu" in res_recruiter.text
+
+    # 4. Academic Portal
+    res_academic = client.get("/portal/academic")
+    assert res_academic.status_code == 200
+    assert "Akademik Portal" in res_academic.text
+    assert "Bölüm Öğrenci & Mezunları" in res_academic.text
+
+    # 5. Universal /portal/ router redirects unauthenticated to login
+    client.cookies.clear()
+    res_portal_redirect = client.get("/portal/", follow_redirects=False)
+    assert res_portal_redirect.status_code == 303
+    assert "/login/" in res_portal_redirect.headers.get("location", "")
+
+
+
+

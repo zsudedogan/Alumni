@@ -447,24 +447,91 @@ def get_base_css() -> str:
 
 
 def render_navbar(active_route: str = "", current_user: Any = None) -> str:
-    """Renders the UniBridge top navigation bar with Istanbul University seal and authentication links"""
+    """Renders the UniBridge top navigation bar dynamically adapted to user role"""
+    if current_user is None:
+        try:
+            from middlewares.auth import get_current_request_user
+            current_user = get_current_request_user()
+        except Exception:
+            current_user = None
+
     def is_active(route_prefix: str) -> str:
         return "active" if active_route == route_prefix else ""
 
-    auth_links = ""
-    if current_user:
-        admin_link = ""
-        if getattr(current_user, "role", "") == "Admin":
-            admin_link = f'<a href="/admin/" class="nav-link {is_active("admin")}" style="background: rgba(197, 155, 39, 0.15); color: #854d0e; border: 1px solid rgba(197, 155, 39, 0.35); font-weight: 700;">👑 Admin Paneli</a>'
+    role = getattr(current_user, "role", None) if current_user else None
 
-        auth_links = f"""
-        {admin_link}
-        <a href="/logout/" class="nav-link" style="color: #991b1b;" title="Oturumu Kapat">🚪 Çıkış ({getattr(current_user, 'name', 'Kullanıcı')})</a>
+    # Base dynamic nav items based on user role
+    nav_items_html = ""
+    auth_links_html = ""
+
+    if role == "Admin":
+        nav_items_html = f"""
+            <a href="/admin/" class="nav-link {is_active('admin')}" style="background: rgba(197, 155, 39, 0.15); color: #854d0e; border: 1px solid rgba(197, 155, 39, 0.35); font-weight: 700;">👑 Admin Paneli</a>
+            <a href="/users/" class="nav-link {is_active('users')}">👥 Users</a>
+            <a href="/announcements/" class="nav-link {is_active('announcements')}">📢 Notices</a>
+            <a href="/job-postings/" class="nav-link {is_active('jobs')}">💼 Careers</a>
+            <a href="/applications/" class="nav-link {is_active('applications')}">📝 Applications</a>
+        """
+        auth_links_html = f"""
+            <span class="badge badge-admin" style="margin-left: 0.25rem;">👑 {current_user.name}</span>
+            <a href="/logout/" class="nav-link" style="color: #991b1b;" title="Oturumu Kapat">🚪 Çıkış</a>
+        """
+    elif role == "Student":
+        nav_items_html = f"""
+            <a href="/portal/student" class="nav-link {is_active('portal_student')}" style="background: rgba(32, 71, 41, 0.08); color: var(--primary); border: 1px solid rgba(32, 71, 41, 0.2); font-weight: 700;">🎓 Öğrenci Portalı</a>
+            <a href="/job-postings/" class="nav-link {is_active('jobs')}">💼 Staj & İlanlar</a>
+            <a href="/portal/student#my-applications" class="nav-link {is_active('applications')}">📝 Başvurularım</a>
+            <a href="/announcements/" class="nav-link {is_active('announcements')}">📢 Duyurular</a>
+            <a href="/users/" class="nav-link {is_active('users')}">👥 Mezun Ağı</a>
+        """
+        auth_links_html = f"""
+            <span class="badge badge-student" style="margin-left: 0.25rem;">🎓 {current_user.name}</span>
+            <a href="/logout/" class="nav-link" style="color: #991b1b;" title="Oturumu Kapat">🚪 Çıkış</a>
+        """
+    elif role == "Alumni":
+        nav_items_html = f"""
+            <a href="/portal/alumni" class="nav-link {is_active('portal_alumni')}" style="background: rgba(197, 155, 39, 0.12); color: #9a7210; border: 1px solid rgba(197, 155, 39, 0.3); font-weight: 700;">📜 Mezun Portalı</a>
+            <a href="/job-postings/" class="nav-link {is_active('jobs')}">💼 İlanlar & Kariyer</a>
+            <a href="/users/" class="nav-link {is_active('users')}">🤝 Mentorluk Ağı</a>
+            <a href="/announcements/" class="nav-link {is_active('announcements')}">📢 Duyurular</a>
+        """
+        auth_links_html = f"""
+            <span class="badge badge-alumni" style="margin-left: 0.25rem;">📜 {current_user.name}</span>
+            <a href="/logout/" class="nav-link" style="color: #991b1b;" title="Oturumu Kapat">🚪 Çıkış</a>
+        """
+    elif role == "Recruiter":
+        nav_items_html = f"""
+            <a href="/portal/recruiter" class="nav-link {is_active('portal_recruiter')}" style="background: rgba(21, 128, 61, 0.1); color: #15803d; border: 1px solid rgba(21, 128, 61, 0.25); font-weight: 700;">💼 İşveren Portalı</a>
+            <a href="/job-postings/" class="nav-link {is_active('jobs')}">➕ İlan Yönetimi</a>
+            <a href="/applications/" class="nav-link {is_active('applications')}">📋 Aday Başvuruları</a>
+            <a href="/users/" class="nav-link {is_active('users')}">👥 Yetenek Havuzu</a>
+        """
+        auth_links_html = f"""
+            <span class="badge badge-recruiter" style="margin-left: 0.25rem;">💼 {current_user.name}</span>
+            <a href="/logout/" class="nav-link" style="color: #991b1b;" title="Oturumu Kapat">🚪 Çıkış</a>
+        """
+    elif role == "Academic":
+        nav_items_html = f"""
+            <a href="/portal/academic" class="nav-link {is_active('portal_academic')}" style="background: rgba(107, 33, 168, 0.1); color: #6b21a8; border: 1px solid rgba(107, 33, 168, 0.25); font-weight: 700;">🏛️ Akademik Portal</a>
+            <a href="/announcements/" class="nav-link {is_active('announcements')}">📢 Duyurular & Bülten</a>
+            <a href="/users/" class="nav-link {is_active('users')}">🎓 Öğrenci & Mezun Listesi</a>
+            <a href="/job-postings/" class="nav-link {is_active('jobs')}">💼 Staj Olanakları</a>
+        """
+        auth_links_html = f"""
+            <span class="badge badge-academic" style="margin-left: 0.25rem;">🏛️ {current_user.name}</span>
+            <a href="/logout/" class="nav-link" style="color: #991b1b;" title="Oturumu Kapat">🚪 Çıkış</a>
         """
     else:
-        auth_links = f"""
-        <a href="/login/" class="nav-link {is_active('login')}">🔐 Giriş</a>
-        <a href="/register/" class="nav-link {is_active('register')}">✨ Kayıt Ol</a>
+        # Guest / Unauthenticated
+        nav_items_html = f"""
+            <a href="/users/" class="nav-link {is_active('users')}">👥 Users</a>
+            <a href="/announcements/" class="nav-link {is_active('announcements')}">📢 Notices</a>
+            <a href="/job-postings/" class="nav-link {is_active('jobs')}">💼 Careers</a>
+            <a href="/applications/" class="nav-link {is_active('applications')}">📝 Applications</a>
+        """
+        auth_links_html = f"""
+            <a href="/login/" class="nav-link {is_active('login')}">🔐 Giriş</a>
+            <a href="/register/" class="nav-link {is_active('register')}">✨ Register</a>
         """
 
     return f"""
@@ -478,11 +545,8 @@ def render_navbar(active_route: str = "", current_user: Any = None) -> str:
                 </div>
             </a>
             <div class="nav-links">
-                <a href="/users/" class="nav-link {is_active('users')}">👥 Users</a>
-                <a href="/announcements/" class="nav-link {is_active('announcements')}">📢 Notices</a>
-                <a href="/job-postings/" class="nav-link {is_active('jobs')}">💼 Careers</a>
-                <a href="/applications/" class="nav-link {is_active('applications')}">📝 Applications</a>
-                {auth_links}
+                {nav_items_html}
+                {auth_links_html}
                 <a href="/api/swagger" class="nav-link btn-swagger" target="_blank">📖 Swagger</a>
             </div>
         </div>
