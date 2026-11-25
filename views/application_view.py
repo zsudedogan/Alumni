@@ -77,16 +77,16 @@ def render_application_management_page(
         <div class="card app-card-item" data-status="{status_lower}" id="app-card-{a.id}">
             <div class="card-header" style="align-items: flex-start; padding-bottom: 0.85rem;">
                 <div style="display: flex; gap: 0.85rem; align-items: center;">
-                    <div style="width: 42px; height: 42px; border-radius: 50%; background: linear-gradient(135deg, #8b5cf6, #38bdf8); display: flex; align-items: center; justify-content: center; font-weight: 700; color: white; box-shadow: 0 3px 10px rgba(139, 92, 246, 0.35);">
+                    <div style="width: 42px; height: 42px; border-radius: 50%; background: #204729; display: flex; align-items: center; justify-content: center; font-weight: 700; color: white; box-shadow: 0 3px 8px rgba(32, 71, 41, 0.2);">
                         {initials}
                     </div>
                     <div>
                         <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.2rem;">
                             <span style="font-family: monospace; color: var(--text-muted); font-size: 0.8rem; font-weight: 700;">#{a.id}</span>
-                            <h3 style="font-size: 1.2rem; font-weight: 700; color: #ffffff; margin: 0;">{applicant_name}</h3>
+                            <h3 style="font-size: 1.2rem; font-weight: 800; color: var(--text-main); margin: 0;">{applicant_name}</h3>
                         </div>
                         <p style="color: var(--text-muted); font-size: 0.88rem; margin: 0;">
-                            {job_info} • <span style="color: #38bdf8; font-family: monospace;">{applicant_email}</span>
+                            {job_info} • <span style="color: var(--primary); font-family: monospace;">{applicant_email}</span>
                         </p>
                     </div>
                 </div>
@@ -95,11 +95,11 @@ def render_application_management_page(
                 </div>
             </div>
 
-            {f'<div style="background: rgba(15, 23, 42, 0.6); border: 1px solid var(--border-glass); border-radius: 8px; padding: 0.75rem 1rem; font-size: 0.9rem; color: #cbd5e1; margin-bottom: 1rem;"><strong style="color: #94a3b8;">Candidate Statement:</strong> "{a.cover_note}"</div>' if a.cover_note else ''}
+            {f'<div style="background: #fafcfb; border: 1px solid rgba(0, 0, 0, 0.08); border-radius: 8px; padding: 0.75rem 1rem; font-size: 0.9rem; color: var(--text-main); margin-bottom: 1rem;"><strong style="color: var(--primary);">Candidate Statement:</strong> "{a.cover_note}"</div>' if a.cover_note else ''}
 
             <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.75rem; border-top: 1px solid var(--border-glass); padding-top: 0.85rem;">
                 <div style="display: flex; gap: 1rem; align-items: center; font-size: 0.825rem; color: var(--text-muted); flex-wrap: wrap;">
-                    <span>📅 Submitted: <strong style="color: white;">{a.created_at or 'Recently'}</strong></span>
+                    <span>📅 Submitted: <strong style="color: var(--text-main);">{a.created_at or "Recently"}</strong></span>
                     {resume_link}
                 </div>
                 <div style="display: flex; align-items: center; gap: 0.5rem;">

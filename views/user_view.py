@@ -36,18 +36,18 @@ def render_user_management_page(users: List[User]) -> str:
         <tr id="user-row-{u.id}">
             <td>
                 <div style="display:flex; align-items:center; gap:0.75rem;">
-                    <div style="width:36px; height:36px; border-radius:50%; background:linear-gradient(135deg, #6366f1, #06b6d4); display:flex; align-items:center; justify-content:center; font-weight:700; font-size:0.85rem; color:white; box-shadow:0 2px 8px rgba(99,102,241,0.3);">
+                    <div style="width:36px; height:36px; border-radius:50%; background:#204729; display:flex; align-items:center; justify-content:center; font-weight:700; font-size:0.85rem; color:white; box-shadow:0 2px 6px rgba(32,71,41,0.2);">
                         {initials}
                     </div>
                     <div>
-                        <div style="font-weight:700; color:#ffffff;">{u.name}</div>
+                        <div style="font-weight:700; color:var(--text-main);">{u.name}</div>
                         <div style="font-size:0.75rem; color:var(--text-muted); font-family:monospace;">ID #{u.id}{dept_display}</div>
                     </div>
                 </div>
             </td>
             <td><span class="badge {role_css}">{role_name}</span></td>
             <td><span class="badge badge-info">{age_display}</span></td>
-            <td><span style="color:#38bdf8; font-family:monospace; font-size:0.85rem;">{email_display}</span></td>
+            <td><span style="color:var(--text-muted); font-family:monospace; font-size:0.85rem;">{email_display}</span></td>
             <td style="text-align:right;">
                 <div style="display:inline-flex; gap:0.4rem;">
                     <button class="btn btn-sm btn-secondary" onclick="editUser({u.id}, '{u.name}', {u.age or 0}, '{u.email or ''}', '{role_name}', '{dept_val}')">✏️ Edit</button>
@@ -86,8 +86,8 @@ def render_user_management_page(users: List[User]) -> str:
             }}
             .search-box input {{
                 width: 100%;
-                background: rgba(15, 23, 42, 0.85);
-                border: 1px solid var(--border-glass);
+                background: #ffffff;
+                border: 1px solid rgba(0, 0, 0, 0.12);
                 border-radius: var(--radius-input);
                 padding: 0.65rem 1rem 0.65rem 2.25rem;
                 color: var(--text-main);
@@ -96,7 +96,7 @@ def render_user_management_page(users: List[User]) -> str:
             .search-box input:focus {{
                 outline: none;
                 border-color: var(--primary);
-                box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.25);
+                box-shadow: 0 0 0 3px rgba(32, 71, 41, 0.12);
             }}
             .search-icon {{
                 position: absolute;
@@ -131,11 +131,11 @@ def render_user_management_page(users: List[User]) -> str:
                 </div>
                 <div class="stat-card">
                     <div class="stat-label">Roles Supported</div>
-                    <div class="stat-value" style="color: #38bdf8;">4 Ecosystem</div>
+                    <div class="stat-value" style="color: var(--accent-gold);">4 Ecosystem</div>
                 </div>
                 <div class="stat-card">
                     <div class="stat-label">Database Storage</div>
-                    <div class="stat-value" style="color: #34d399;">SQLAlchemy</div>
+                    <div class="stat-value" style="color: var(--primary);">SQLAlchemy</div>
                 </div>
             </div>
 

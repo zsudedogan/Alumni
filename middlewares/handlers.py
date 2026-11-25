@@ -23,13 +23,13 @@ def render_404_page(reason: str, path: str) -> str:
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
     <style>
         :root {{
-            --bg: #090d16;
-            --card-bg: rgba(15, 23, 42, 0.8);
-            --text: #f8fafc;
-            --muted: #94a3b8;
-            --accent: #f43f5e;
-            --primary: #6366f1;
-            --border: rgba(255, 255, 255, 0.08);
+            --bg: #f4f7f5;
+            --card-bg: #ffffff;
+            --text: #152418;
+            --muted: #5e6d62;
+            --accent: #dc2626;
+            --primary: #204729;
+            --border: rgba(0, 0, 0, 0.08);
         }}
         * {{ box-sizing: border-box; margin: 0; padding: 0; }}
         body {{
@@ -146,13 +146,13 @@ def render_500_page(reason: str, path: str) -> str:
     <title>500 - Internal Server Error</title>
     <style>
         :root {{
-            --bg: #0f172a;
-            --card-bg: #1e293b;
-            --text: #f8fafc;
-            --muted: #94a3b8;
-            --accent: #eab308;
-            --primary: #4f46e5;
-            --border: #334155;
+            --bg: #f4f7f5;
+            --card-bg: #ffffff;
+            --text: #152418;
+            --muted: #5e6d62;
+            --accent: #d97706;
+            --primary: #204729;
+            --border: rgba(0, 0, 0, 0.08);
         }}
         * {{ box-sizing: border-box; margin: 0; padding: 0; }}
         body {{

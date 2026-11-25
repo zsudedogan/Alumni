@@ -191,105 +191,196 @@ app.include_router(register_router)
 
 
 
-from views.components import get_base_css, render_navbar, render_footer
+from views.components import get_base_css, render_navbar, render_footer, render_iu_logo
 
 # ---------------------------------------------------------
-# Main Landing Hub (GET /)
+# Main Landing Hub (GET /) - UniBridge Giriş Sistemi
 # ---------------------------------------------------------
 @app.get("/", response_class=HTMLResponse, tags=["System"])
 async def main_hub():
-    """Main Application Landing Hub linking to all interfaces and documentation"""
+    """UniBridge Istanbul University Entry & Career Portal"""
     html = f"""
     <!DOCTYPE html>
-    <html lang="en">
+    <html lang="tr">
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Alumni OS - Career & Academic Ecosystem</title>
+        <title>UniBridge Giriş Sistemi • İstanbul Üniversitesi</title>
         <link rel="preconnect" href="https://fonts.googleapis.com">
         <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
         <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
         <style>
             {get_base_css()}
-            .hero-badge {{
+
+            .unibridge-hero {{
+                text-align: center;
+                margin: 2rem auto 2.5rem;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                gap: 0.85rem;
+            }}
+
+            .unibridge-hero h1 {{
+                font-size: 2.25rem;
+                font-weight: 800;
+                color: var(--primary);
+                letter-spacing: -0.02em;
+                margin: 0;
+            }}
+
+            .unibridge-hero p {{
+                color: var(--text-muted);
+                font-size: 1.05rem;
+                margin: 0;
+                font-weight: 500;
+            }}
+
+            /* UniBridge Role Cards Layout */
+            .portal-cards-wrapper {{
+                max-width: 580px;
+                margin: 0 auto 3.5rem;
+                display: flex;
+                flex-direction: column;
+                gap: 1.75rem;
+            }}
+
+            .unibridge-card {{
+                background: #ffffff;
+                border: 1px solid var(--border-card);
+                border-radius: var(--radius-card);
+                padding: 2.25rem 2rem 2rem;
+                box-shadow: var(--shadow-card);
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                text-align: center;
+                transition: transform 0.25s, box-shadow 0.25s;
+            }}
+
+            .unibridge-card:hover {{
+                transform: translateY(-3px);
+                box-shadow: var(--shadow-elevated);
+            }}
+
+            .icon-circle {{
+                width: 60px;
+                height: 60px;
+                border-radius: 16px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-size: 1.75rem;
+                margin-bottom: 1.25rem;
+            }}
+
+            .icon-student {{ background: #e8f3fc; color: #1d4ed8; }}
+            .icon-alumni {{ background: #fef6e7; color: #c59b27; }}
+            .icon-academic {{ background: #ede9fe; color: #6b21a8; }}
+            .icon-recruiter {{ background: #e6f4ea; color: #15803d; }}
+
+            .unibridge-card h2 {{
+                font-size: 1.4rem;
+                font-weight: 800;
+                color: var(--primary);
+                margin-bottom: 0.5rem;
+            }}
+
+            .unibridge-card p {{
+                color: var(--text-muted);
+                font-size: 0.95rem;
+                margin-bottom: 1.5rem;
+                max-width: 420px;
+                line-height: 1.5;
+            }}
+
+            .btn-unibridge {{
+                width: 100%;
+                max-width: 440px;
+                padding: 0.95rem 1.5rem;
+                font-size: 1.05rem;
+                font-weight: 700;
+                border-radius: 14px;
+                background: var(--primary);
+                color: #ffffff !important;
+                border: none;
+                cursor: pointer;
+                text-decoration: none;
                 display: inline-flex;
                 align-items: center;
-                gap: 0.5rem;
-                padding: 0.35rem 0.85rem;
-                background: rgba(99, 102, 241, 0.15);
-                border: 1px solid rgba(99, 102, 241, 0.35);
-                border-radius: 9999px;
-                color: #a5b4fc;
-                font-size: 0.8rem;
-                font-weight: 700;
-                margin-bottom: 1.25rem;
-                text-transform: uppercase;
-                letter-spacing: 0.05em;
+                justify-content: center;
+                transition: background 0.2s, transform 0.2s, box-shadow 0.2s;
+                box-shadow: 0 4px 12px var(--primary-glow);
             }}
-            .hero-badge .dot {{
-                width: 8px;
-                height: 8px;
-                background: #10b981;
-                border-radius: 50%;
-                box-shadow: 0 0 8px #10b981;
+
+            .btn-unibridge:hover {{
+                background: var(--primary-dark);
+                transform: translateY(-1px);
+                box-shadow: 0 6px 16px var(--primary-glow);
             }}
-            .hub-hero {{
+
+            /* Quick Access Modules Grid */
+            .modules-section {{
+                border-top: 1px solid var(--border-glass);
+                padding-top: 3rem;
+                margin-top: 1rem;
+            }}
+
+            .modules-header {{
                 text-align: center;
-                max-width: 820px;
-                margin: 2.5rem auto 3rem;
+                margin-bottom: 2rem;
             }}
-            .hub-hero h1 {{
-                font-size: 3rem;
+
+            .modules-header h3 {{
+                font-size: 1.4rem;
                 font-weight: 800;
-                line-height: 1.15;
-                letter-spacing: -0.03em;
-                margin-bottom: 1rem;
-                background: linear-gradient(135deg, #ffffff 40%, #94a3b8 100%);
-                -webkit-background-clip: text;
-                -webkit-text-fill-color: transparent;
+                color: var(--primary);
+                margin-bottom: 0.3rem;
             }}
-            .hub-hero p {{
-                font-size: 1.15rem;
+
+            .modules-header p {{
                 color: var(--text-muted);
-                line-height: 1.6;
+                font-size: 0.95rem;
             }}
-            .hub-grid {{
+
+            .modules-grid {{
                 display: grid;
-                grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-                gap: 1.5rem;
-                margin-bottom: 3rem;
+                grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+                gap: 1.25rem;
             }}
-            .hub-card {{
-                background: var(--bg-surface);
-                border: 1px solid var(--border-glass);
+
+            .module-card {{
+                background: #ffffff;
+                border: 1px solid var(--border-card);
                 border-radius: var(--radius-card);
-                padding: 1.75rem;
-                backdrop-filter: blur(16px);
+                padding: 1.5rem;
+                box-shadow: var(--shadow-card);
                 display: flex;
                 flex-direction: column;
                 justify-content: space-between;
-                transition: transform 0.25s, border-color 0.25s, box-shadow 0.25s;
+                transition: transform 0.2s;
             }}
-            .hub-card:hover {{
-                transform: translateY(-5px);
-                border-color: var(--border-glow);
-                box-shadow: 0 15px 30px -10px rgba(99, 102, 241, 0.2);
+
+            .module-card:hover {{
+                transform: translateY(-2px);
+                border-color: rgba(32, 71, 41, 0.2);
             }}
-            .hub-card-icon {{
-                font-size: 2rem;
-                margin-bottom: 1rem;
+
+            .module-card h4 {{
+                font-size: 1.1rem;
+                font-weight: 800;
+                color: var(--primary);
+                margin-bottom: 0.4rem;
+                display: flex;
+                align-items: center;
+                gap: 0.5rem;
             }}
-            .hub-card h2 {{
-                font-size: 1.35rem;
-                font-weight: 700;
-                color: #ffffff;
-                margin-bottom: 0.5rem;
-            }}
-            .hub-card p {{
+
+            .module-card p {{
                 color: var(--text-muted);
-                font-size: 0.92rem;
-                line-height: 1.55;
-                margin-bottom: 1.5rem;
+                font-size: 0.88rem;
+                line-height: 1.5;
+                margin-bottom: 1.25rem;
                 flex-grow: 1;
             }}
         </style>
@@ -298,94 +389,96 @@ async def main_hub():
         {render_navbar(active_route="")}
 
         <div class="container">
-            <div class="hub-hero">
-                <div class="hero-badge">
-                    <span class="dot"></span>
-                    <span>MVC Lab • Production Ready v4.1</span>
-                </div>
-                <h1>Unified Alumni & Career Platform</h1>
-                <p>High-performance MVC architecture featuring container lifecycle experiments, robust request pipelines, and VoltAgent design standards.</p>
+            <!-- Top Official Seal & UniBridge Header -->
+            <div class="unibridge-hero">
+                {render_iu_logo(size=92)}
+                <h1>UniBridge Giriş Sistemi</h1>
+                <p>Lütfen devam etmek için kullanıcı tipinizi seçin</p>
             </div>
 
-            <div class="stats-grid">
-                <div class="stat-card">
-                    <div class="stat-label">Architecture</div>
-                    <div class="stat-value" style="font-size: 1.6rem; color: #a5b4fc;">MVC + FastAPI</div>
+            <!-- UniBridge Role Selection Cards (Matches Reference PDF) -->
+            <div class="portal-cards-wrapper">
+                <!-- 1. Öğrenci -->
+                <div class="unibridge-card">
+                    <div class="icon-circle icon-student">🎓</div>
+                    <h2>Öğrenci</h2>
+                    <p>Aktif öğrenciler için öğrenci otomasyonu girişi.</p>
+                    <a href="/register/" class="btn-unibridge">Giriş Yap</a>
                 </div>
-                <div class="stat-card">
-                    <div class="stat-label">Request Pipeline</div>
-                    <div class="stat-value" style="font-size: 1.6rem; color: #34d399;">Active (Logger)</div>
+
+                <!-- 2. Mezun -->
+                <div class="unibridge-card">
+                    <div class="icon-circle icon-alumni">🎖️</div>
+                    <h2>Mezun</h2>
+                    <p>Mezunlar ağı ve kariyer fırsatları portalı.</p>
+                    <a href="/register/" class="btn-unibridge">Giriş Yap</a>
                 </div>
-                <div class="stat-card">
-                    <div class="stat-label">Guardians</div>
-                    <div class="stat-value" style="font-size: 1.6rem; color: #38bdf8;">404 & 5xx Enabled</div>
+
+                <!-- 3. Akademik -->
+                <div class="unibridge-card">
+                    <div class="icon-circle icon-academic">🖥️</div>
+                    <h2>Akademik</h2>
+                    <p>Öğretim üyeleri ve idari personel erişimi.</p>
+                    <a href="/register/" class="btn-unibridge">Giriş Yap</a>
                 </div>
-                <div class="stat-card">
-                    <div class="stat-label">Automated Tests</div>
-                    <div class="stat-value" style="font-size: 1.6rem; color: #facc15;">21 / 21 Passing</div>
+
+                <!-- 4. İşveren / İK -->
+                <div class="unibridge-card">
+                    <div class="icon-circle icon-recruiter">🏢</div>
+                    <h2>İşveren / Sektör</h2>
+                    <p>Kurumsal iş ve staj ilanları yönetimi ile aday değerlendirme portalı.</p>
+                    <a href="/register/" class="btn-unibridge">Giriş Yap</a>
                 </div>
             </div>
 
-            <div class="hub-grid">
-                <!-- Card 1: Users -->
-                <div class="hub-card">
-                    <div>
-                        <div class="hub-card-icon">👥</div>
-                        <h2>User Directory</h2>
-                        <p>Browse students, alumni, and recruiters. Supports full CRUD operations, live search, and profile management.</p>
-                    </div>
-                    <a href="/users/" class="btn btn-primary">Open User View →</a>
+            <!-- Quick Access Modules & Swagger UI -->
+            <div class="modules-section">
+                <div class="modules-header">
+                    <h3>⚡ Sistem Portalları & Hızlı Erişim</h3>
+                    <p>Alumni Ekosistemi yönetim arayüzleri ve geliştirici araçları</p>
                 </div>
 
-                <!-- Card 2: Announcements -->
-                <div class="hub-card">
-                    <div>
-                        <div class="hub-card-icon">📢</div>
-                        <h2>Department Notices</h2>
-                        <p>Publish academic circulars, campus events, and administrative notices with category tags and instant updates.</p>
-                    </div>
-                    <a href="/announcements/" class="btn btn-secondary">Open Notices View →</a>
-                </div>
-
-                <!-- Card 3: Job Postings -->
-                <div class="hub-card">
-                    <div>
-                        <div class="hub-card-icon">💼</div>
-                        <h2>Career & Job Postings</h2>
-                        <p>Explore internship and full-time opportunities with strict 120-char titles, company validation, and direct application links.</p>
-                    </div>
-                    <a href="/job-postings/" class="btn btn-primary">Open Career Portal →</a>
-                </div>
-
-                <!-- Card 4: Applications -->
-                <div class="hub-card">
-                    <div>
-                        <div class="hub-card-icon">📝</div>
-                        <h2>Job Applications</h2>
-                        <p>Review candidate submissions, manage application workflows (Pending, Reviewed, Accepted), and submit new applications.</p>
-                    </div>
-                    <a href="/applications/" class="btn btn-secondary">Open Applications View →</a>
-                </div>
-
-                <!-- Card 5: Registration Portal -->
-                <div class="hub-card">
-                    <div>
-                        <div class="hub-card-icon">✨</div>
-                        <h2>Role-Based Registration</h2>
-                        <p>Create an account as a Student, Alumni, Recruiter, or Academic faculty with full profile onboarding.</p>
-                    </div>
-                    <a href="/register/" class="btn btn-primary">Join Ecosystem →</a>
-                </div>
-
-                <!-- Card 6: Swagger -->
-                <div class="hub-card" style="grid-column: 1 / -1;">
-                    <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1rem;">
+                <div class="modules-grid">
+                    <div class="module-card">
                         <div>
-                            <div class="hub-card-icon" style="margin-bottom: 0.5rem;">📖</div>
-                            <h2>OpenAPI (Swagger UI) Interactive Documentation</h2>
-                            <p style="margin-bottom: 0;">Explore and test all RESTful CRUD endpoints directly in your browser (/api/swagger).</p>
+                            <h4>👥 Kullanıcı Rehberi</h4>
+                            <p>Öğrenci, mezun ve akademik kullanıcı listesi ve profil yönetimi.</p>
                         </div>
-                        <a href="/api/swagger" class="btn btn-primary" target="_blank">Launch Swagger UI ↗</a>
+                        <a href="/users/" class="btn btn-secondary btn-sm">Görüntüle →</a>
+                    </div>
+
+                    <div class="module-card">
+                        <div>
+                            <h4>📢 Bölüm Duyuruları</h4>
+                            <p>Akademik duyurular, staj ilanları ve idari bildirimler.</p>
+                        </div>
+                        <a href="/announcements/" class="btn btn-secondary btn-sm">Duyurular →</a>
+                    </div>
+
+                    <div class="module-card">
+                        <div>
+                            <h4>💼 Kariyer Portalı</h4>
+                            <p>Şirket iş ilanları, staj pozisyonları ve başvuru olanakları.</p>
+                        </div>
+                        <a href="/job-postings/" class="btn btn-secondary btn-sm">İlanlar →</a>
+                    </div>
+
+                    <div class="module-card">
+                        <div>
+                            <h4>📝 Başvuru Yönetimi</h4>
+                            <p>İş ve staj başvurularını inceleme ve statü onay takip paneli.</p>
+                        </div>
+                        <a href="/applications/" class="btn btn-secondary btn-sm">Başvurular →</a>
+                    </div>
+
+                    <div class="module-card" style="grid-column: 1 / -1; background: #fafcfb; border-color: rgba(197, 155, 39, 0.35);">
+                        <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1rem;">
+                            <div>
+                                <h4 style="color: var(--primary);">📖 OpenAPI (Swagger UI) Geliştirici Dokümantasyonu</h4>
+                                <p style="margin-bottom: 0;">Sistem RESTful CRUD API uç noktalarını tarayıcı üzerinden interaktif olarak test edin.</p>
+                            </div>
+                            <a href="/api/swagger" target="_blank" class="btn btn-primary btn-sm">Swagger UI Aç ↗</a>
+                        </div>
                     </div>
                 </div>
             </div>

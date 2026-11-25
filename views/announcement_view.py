@@ -27,7 +27,7 @@ def render_announcement_management_page(announcements: list) -> str:
                 <div style="display:flex; align-items:center; gap:0.5rem; flex-wrap:wrap;">
                     <span style="font-family:monospace; color:var(--text-muted); font-size:0.8rem; font-weight:700;">#{a.id}</span>
                     <span class="badge {badge_class}">{cat}</span>
-                    <h3 style="color:#ffffff; font-size:1.15rem; font-weight:700; margin:0;">{a.title}</h3>
+                    <h3 style="color:var(--text-main); font-size:1.15rem; font-weight:800; margin:0;">{a.title}</h3>
                 </div>
                 <div style="display:flex; gap:0.4rem;">
                     <button class="btn btn-sm btn-secondary" onclick="editAnnouncement({a.id}, `{a.title}`, `{a.content}`, `{a.author or ''}`, `{a.category or ''}`)">✏️ Edit</button>
@@ -36,8 +36,8 @@ def render_announcement_management_page(announcements: list) -> str:
             </div>
             <p style="color:var(--text-main); font-size:0.95rem; line-height:1.6; white-space:pre-line; margin-bottom:1rem;">{a.content}</p>
             <div style="display:flex; justify-content:space-between; align-items:center; font-size:0.8rem; color:var(--text-muted); border-top:1px solid var(--border-glass); padding-top:0.6rem;">
-                <span>👤 Author: <strong style="color:white;">{a.author or "Admin"}</strong></span>
-                <span>📅 Date: <strong style="color:white;">{a.date or "Recent"}</strong></span>
+                <span>👤 Author: <strong style="color:var(--primary);">{a.author or "Admin"}</strong></span>
+                <span>📅 Date: <strong style="color:var(--text-main);">{a.date or "Recent"}</strong></span>
             </div>
         </div>
         """
@@ -82,16 +82,16 @@ def render_announcement_management_page(announcements: list) -> str:
             .filter-pill {{
                 padding: 0.35rem 0.85rem;
                 border-radius: 9999px;
-                background: rgba(255, 255, 255, 0.06);
-                border: 1px solid var(--border-glass);
+                background: #ffffff;
+                border: 1px solid rgba(0, 0, 0, 0.12);
                 color: var(--text-muted);
-                font-size: 0.8rem;
-                font-weight: 600;
+                font-size: 0.82rem;
+                font-weight: 700;
                 cursor: pointer;
                 transition: all 0.2s;
             }}
             .filter-pill:hover, .filter-pill.active {{
-                background: rgba(99, 102, 241, 0.2);
+                background: var(--primary);
                 border-color: var(--primary);
                 color: #ffffff;
             }}

@@ -42,16 +42,16 @@ def render_job_posting_management_page(
         <div class="card job-card-item" data-job-type="{j.job_type or ''}" data-location="{city_display}">
             <div class="card-header" style="align-items: flex-start; padding-bottom: 0.85rem;">
                 <div style="display: flex; gap: 1rem; align-items: flex-start;">
-                    <div style="width: 44px; height: 44px; border-radius: 12px; background: linear-gradient(135deg, #6366f1, #06b6d4); display: flex; align-items: center; justify-content: center; font-size: 1.25rem; font-weight: 800; color: white; box-shadow: 0 4px 12px rgba(99, 102, 241, 0.35);">
+                    <div style="width: 44px; height: 44px; border-radius: 12px; background: #204729; display: flex; align-items: center; justify-content: center; font-size: 1.25rem; font-weight: 800; color: white; box-shadow: 0 4px 10px rgba(32, 71, 41, 0.2);">
                         {company_initial}
                     </div>
                     <div>
                         <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.25rem; flex-wrap: wrap;">
                             <span style="font-family: monospace; font-size: 0.8rem; color: var(--text-muted); font-weight: 700;">#{j.id}</span>
-                            <h3 style="font-size: 1.25rem; font-weight: 700; color: #ffffff; margin: 0;">{j.title}</h3>
+                            <h3 style="font-size: 1.25rem; font-weight: 800; color: var(--text-main); margin: 0;">{j.title}</h3>
                         </div>
                         <p style="color: var(--text-muted); font-size: 0.9rem; margin: 0;">
-                            🏢 <strong style="color: white;">{j.company}</strong> • 📍 {city_display}
+                            🏢 <strong style="color: var(--primary);">{j.company}</strong> • 📍 {city_display}
                         </p>
                     </div>
                 </div>
@@ -63,7 +63,7 @@ def render_job_posting_management_page(
 
             {f'<p style="color: var(--text-main); font-size: 0.95rem; line-height: 1.6; margin-bottom: 1rem;">{j.description}</p>' if j.description else ''}
 
-            {f'<div style="background: rgba(15, 23, 42, 0.6); border: 1px solid var(--border-glass); border-radius: 8px; padding: 0.65rem 0.9rem; font-size: 0.85rem; color: var(--text-muted); margin-bottom: 1rem;"><strong style="color: #cbd5e1;">Requirements:</strong> {j.requirements}</div>' if j.requirements else ''}
+            {f'<div style="background: #fafcfb; border: 1px solid rgba(0, 0, 0, 0.08); border-radius: 8px; padding: 0.65rem 0.9rem; font-size: 0.85rem; color: var(--text-muted); margin-bottom: 1rem;"><strong style="color: var(--text-main);">Requirements:</strong> {j.requirements}</div>' if j.requirements else ''}
 
             <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.75rem; border-top: 1px solid var(--border-glass); padding-top: 0.85rem;">
                 <div style="display: flex; gap: 1rem; align-items: center; font-size: 0.85rem; color: var(--text-muted); flex-wrap: wrap;">
